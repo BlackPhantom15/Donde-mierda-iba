@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dónde Mierda Iba</string>
+    <string name="by_blackphantom">By BlackPhantom</string>
+
+    <string name="tab_series">Series</string>
+    <string name="tab_peliculas">Películas</string>
+    <string name="tab_videos">Videos</string>
+
+    <string name="add_serie">Agregar serie</string>
+    <string name="add_pelicula">Agregar película</string>
+    <string name="add_video">Agregar video</string>
+
+    <string name="search_hint">Buscar…</string>
+    <string name="empty_series">Todavía no agregaste ninguna serie</string>
+    <string name="empty_peliculas">Todavía no agregaste ninguna película</string>
+    <string name="empty_videos">Todavía no agregaste ningún video</string>
+
+    <string name="field_name">Nombre</string>
+    <string name="field_season">Temporada</string>
+    <string name="field_episode">Capítulo</string>
+    <string name="field_minute">Minuto</string>
+    <string name="field_image">Imagen</string>
+
+    <string name="pick_from_gallery">Elegir de la galería</string>
+    <string name="pick_from_web">Buscar en la web (URL)</string>
+    <string name="web_url_hint">Pegá el link de la imagen…</string>
+
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Eliminar</string>
+    <string name="update">Actualizar</string>
+
+    <string name="choose_platform">Elegí la plataforma</string>
+
+    <string name="season_short">T</string>
+    <string name="episode_short">C</string>
+    <string name="minute_short">min</string>
+
+    <string name="view_list">Ver en lista</string>
+    <string name="view_grid">Ver en cuadrícula</string>
+
+    <string name="edit_progress_title">Actualizar progreso</string>
+</resources>

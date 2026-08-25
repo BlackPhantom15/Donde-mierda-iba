@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_top">#0B0B14</color>
+    <color name="bg_bottom">#15122B</color>
+    <color name="glass_fill">#26FFFFFF</color>
+    <color name="glass_stroke">#40FFFFFF</color>
+    <color name="glass_fill_strong">#33FFFFFF</color>
+
+    <color name="accent_violet">#8B5CF6</color>
+    <color name="accent_cyan">#22D3EE</color>
+    <color name="accent_pink">#F472B6</color>
+
+    <color name="text_primary">#F5F3FF</color>
+    <color name="text_secondary">#B6B0D6</color>
+    <color name="text_muted">#7B7699</color>
+
+    <color name="danger">#FB7185</color>
+
+    <color name="platform_youtube">#FF3B3B</color>
+    <color name="platform_twitch">#9146FF</color>
+    <color name="platform_kick">#53FC18</color>
+    <color name="platform_tiktok">#25F4EE</color>
+    <color name="platform_facebook">#3B82F6</color>
+    <color name="platform_x">#E5E5E5</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+</resources>

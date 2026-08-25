@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_glass_sheet"
+    android:orientation="vertical"
+    android:padding="22dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#40FFFFFF" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/field_image"
+        android:textAppearance="@style/TextAppearance.DMI.Title" />
+
+    <Button
+        android:id="@+id/btnGallery"
+        style="@style/Widget.DMI.AppleButton.Ghost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:drawableStart="@drawable/ic_image_placeholder"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/pick_from_gallery" />
+
+    <Button
+        android:id="@+id/btnWeb"
+        style="@style/Widget.DMI.AppleButton.Ghost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:drawableStart="@drawable/ic_link"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/pick_from_web" />
+
+    <LinearLayout
+        android:id="@+id/webUrlRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/edtWebUrl"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_glass_input"
+            android:hint="@string/web_url_hint"
+            android:inputType="textUri"
+            android:maxLines="1"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_muted" />
+
+        <ImageButton
+            android:id="@+id/btnConfirmWebUrl"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_button_apple_normal"
+            android:padding="10dp"
+            android:src="@drawable/ic_check" />
+
+    </LinearLayout>
+
+</LinearLayout>
