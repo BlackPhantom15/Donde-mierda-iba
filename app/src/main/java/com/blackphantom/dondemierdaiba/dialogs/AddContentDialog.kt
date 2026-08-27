@@ -24,6 +24,7 @@ import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.data.ImageSource
 import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.databinding.DialogAddContentBinding
+import com.blackphantom.dondemierdaiba.network.TvMazeApi
 import com.blackphantom.dondemierdaiba.util.ImagePickerHelper
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
@@ -171,19 +172,51 @@ class AddContentDialog : BottomSheetDialogFragment() {
         val season = binding.edtSeason.text.toString().trim().toIntOrNull() ?: 0
         val episode = binding.edtEpisode.text.toString().trim().toIntOrNull() ?: 0
 
-        val entity = ContentEntity(
-            type = type.name,
-            name = name,
-            imageUri = pickedImageUri,
-            imageSource = pickedImageSource.name,
-            season = if (type == ContentType.SERIE) season else 0,
-            episode = if (type == ContentType.SERIE) episode else 0,
-            minute = minute,
-            platform = selectedPlatform?.name
-        )
+        binding.btnSave.isEnabled = false
 
         lifecycleScope.launch {
+            // Solo para series: buscamos el show en TVmaze para poder avisar después
+            // cuando salga temporada/capítulo nuevo. Es "best effort": si no hay
+            // internet o no se encuentra, la serie se guarda igual, solo que sin
+            // avisos automáticos.
+            var tvMazeId: Int? = null
+            var remoteSeason = 0
+            var remoteEpisode = 0
+
+            if (type == ContentType.SERIE) {
+                binding.btnSave.text = getString(R.string.checking_updates)
+                val match = TvMazeApi.searchShow(name)
+                if (match != null) {
+                    tvMazeId = match.id
+                    val latest = TvMazeApi.latestAiredEpisode(match.id)
+                    if (latest != null) {
+                        remoteSeason = latest.season
+                        remoteEpisode = latest.number
+                    }
+                }
+            }
+
+            val entity = ContentEntity(
+                type = type.name,
+                name = name,
+                imageUri = pickedImageUri,
+                imageSource = pickedImageSource.name,
+                season = if (type == ContentType.SERIE) season else 0,
+                episode = if (type == ContentType.SERIE) episode else 0,
+                minute = minute,
+                platform = selectedPlatform?.name,
+                tvMazeId = tvMazeId,
+                remoteSeason = remoteSeason,
+                remoteEpisode = remoteEpisode
+            )
+
             AppDatabase.getInstance(requireContext()).contentDao().insert(entity)
+
+            if (type == ContentType.SERIE && isAdded) {
+                val msgRes = if (tvMazeId != null) R.string.tvmaze_linked else R.string.tvmaze_not_found
+                Toast.makeText(requireContext(), getString(msgRes), Toast.LENGTH_LONG).show()
+            }
+
             dismiss()
         }
     }

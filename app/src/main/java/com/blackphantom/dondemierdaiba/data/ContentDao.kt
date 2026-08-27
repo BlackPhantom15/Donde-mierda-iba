@@ -20,4 +20,7 @@ interface ContentDao {
 
     @Query("SELECT * FROM content_items WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): ContentEntity?
+
+    @Query("SELECT * FROM content_items WHERE type = 'SERIE' AND tvMazeId IS NOT NULL")
+    suspend fun getSeriesLinkedToTvMaze(): List<ContentEntity>
 }

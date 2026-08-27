@@ -52,6 +52,16 @@ de Google ya no soportan nada anterior). `minSdk` está en `19` en
 - Todo se guarda localmente con **Room** (SQLite), no depende de internet
   salvo que elijas cargar una imagen desde una URL web.
 
+- **Aviso de nuevos capítulos/temporadas**: al agregar una serie, la app la
+  busca automáticamente en **TVmaze** (API pública y gratuita, sin API key,
+  sin datos con copyright — solo título/temporada/capítulo/fecha, que son
+  hechos objetivos). Si la encuentra, queda vinculada y cada 12hs (con
+  conexión a internet) se chequea si salió algo nuevo *ya emitido*; si es
+  así, dispara una notificación local. También hay un botón de refresco (🔄)
+  en el header para forzar el chequeo al toque, útil para probarlo sin
+  esperar. Si no se encuentra la serie en TVmaze (nombre raro, sin
+  internet, etc.), igual se guarda, solo que sin avisos automáticos.
+
 ## Notas de diseño / cosas para retocar vos
 
 - Los 6 colores de plataforma y los degradados están en
@@ -69,5 +79,16 @@ de Google ya no soportan nada anterior). `minSdk` está en `19` en
   caché automático.
 
 Cualquier ajuste de paleta, tipografía o comportamiento, avisame.
+
+## ⚠️ Importante sobre esta actualización
+
+Se agregaron columnas nuevas a la base de datos local (para el vínculo con
+TVmaze) y la migración está configurada como **destructiva**
+(`fallbackToDestructiveMigration()`), lo que significa que **si ya tenías
+series/películas/videos cargados en el dispositivo con la versión
+anterior, se van a borrar al actualizar** (se recrea la tabla desde cero).
+Si eso te importa, avisame y te armo una migración real que preserve los
+datos existentes; no la hice por defecto para no complicar el código en
+esta etapa temprana del proyecto.
 
 — By BlackPhantom

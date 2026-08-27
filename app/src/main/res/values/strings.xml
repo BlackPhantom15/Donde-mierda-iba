@@ -41,4 +41,15 @@
     <string name="view_grid">Ver en cuadrícula</string>
 
     <string name="edit_progress_title">Actualizar progreso</string>
+
+    <string name="notif_channel_name">Nuevos capítulos</string>
+    <string name="notif_channel_desc">Avisos cuando sale una temporada o capítulo nuevo de tus series</string>
+    <string name="notif_new_season_title">📺 Nueva temporada de %1$s</string>
+    <string name="notif_new_episode_title">📺 Nuevo capítulo de %1$s</string>
+    <string name="notif_new_episode_body">Temporada %1$d · Capítulo %2$d ya está disponible</string>
+
+    <string name="tvmaze_linked">Serie vinculada con TVmaze ✅ vas a recibir avisos de capítulos nuevos</string>
+    <string name="tvmaze_not_found">No se encontró en TVmaze, se guardó igual pero sin avisos automáticos</string>
+    <string name="checking_updates">Buscando novedades…</string>
+    <string name="check_updates_now">Buscar novedades</string>
 </resources>

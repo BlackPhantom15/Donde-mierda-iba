@@ -41,6 +41,16 @@
                 android:textAppearance="@style/TextAppearance.DMI.Title" />
 
             <ImageButton
+                android:id="@+id/btnCheckUpdates"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_glass_input"
+                android:padding="9dp"
+                android:src="@drawable/ic_refresh"
+                android:contentDescription="@string/check_updates_now" />
+
+            <ImageButton
                 android:id="@+id/btnToggleView"
                 android:layout_width="40dp"
                 android:layout_height="40dp"

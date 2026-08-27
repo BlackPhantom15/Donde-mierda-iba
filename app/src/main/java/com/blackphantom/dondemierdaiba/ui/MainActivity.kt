@@ -1,9 +1,15 @@
 package com.blackphantom.dondemierdaiba.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.tabs.TabLayout
 import com.blackphantom.dondemierdaiba.R
@@ -11,6 +17,7 @@ import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.databinding.ActivityMainBinding
 import com.blackphantom.dondemierdaiba.dialogs.AddContentDialog
 import com.blackphantom.dondemierdaiba.util.Prefs
+import com.blackphantom.dondemierdaiba.work.EpisodeCheckScheduler
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +26,9 @@ class MainActivity : AppCompatActivity() {
     private val fragments = arrayOfNulls<ContentListFragment>(3)
     private var currentTab = 0
     private var isGrid = false
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* el usuario decide, no forzamos nada */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +43,27 @@ class MainActivity : AppCompatActivity() {
         setupSearch()
         setupToggleView()
         setupFab()
+        setupCheckUpdates()
         updateFabLabel()
+        requestNotificationPermissionIfNeeded()
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+    private fun setupCheckUpdates() {
+        binding.btnCheckUpdates.setOnClickListener {
+            EpisodeCheckScheduler.checkNow(this)
+            Toast.makeText(this, getString(R.string.checking_updates), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupFragments() {

@@ -60,6 +60,9 @@ dependencies {
     implementation 'androidx.room:room-ktx:2.4.3'
     kapt 'androidx.room:room-compiler:2.4.3'
 
+    // Chequeo periódico en segundo plano (notificaciones de nuevos capítulos)
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+
     // Carga de imágenes (galería / web), liviano
     implementation 'com.github.bumptech.glide:glide:4.13.2'
 
