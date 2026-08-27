@@ -24,6 +24,7 @@ import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.data.ImageSource
 import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.databinding.DialogAddContentBinding
+import com.blackphantom.dondemierdaiba.dialogs.ImageWebSearchDialog
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
 import com.blackphantom.dondemierdaiba.util.ImagePickerHelper
 import kotlinx.coroutines.launch
@@ -83,6 +84,18 @@ class AddContentDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        childFragmentManager.setFragmentResultListener(
+            ImageWebSearchDialog.REQUEST_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val url = bundle.getString(ImageWebSearchDialog.ARG_URL)
+            if (!url.isNullOrBlank()) {
+                pickedImageUri = url
+                pickedImageSource = ImageSource.WEB
+                renderPreview()
+            }
+        }
+
         binding.txtTitle.text = when (type) {
             ContentType.SERIE -> getString(R.string.add_serie)
             ContentType.PELICULA -> getString(R.string.add_pelicula)
@@ -99,8 +112,10 @@ class AddContentDialog : BottomSheetDialogFragment() {
             binding.imgPreview.setOnClickListener {
                 ImagePickerHelper.showImageSourceChooser(
                     requireContext(),
+                    fragmentManager = childFragmentManager,
+                    initialQuery = binding.edtName.text.toString().trim(),
                     onPickGallery = { requestGalleryImage() },
-                    onWebUrl = { url ->
+                    onManualUrl = { url ->
                         pickedImageUri = url
                         pickedImageSource = ImageSource.WEB
                         renderPreview()

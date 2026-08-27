@@ -46,6 +46,7 @@ class ContentAdapter(
         private val imgThumb: ImageView = itemView.findViewById(R.id.imgThumb)
         private val txtName: TextView = itemView.findViewById(R.id.txtName)
         private val txtMeta: TextView = itemView.findViewById(R.id.txtMeta)
+        private val txtRemoteInfo: TextView? = itemView.findViewById(R.id.txtRemoteInfo)
         private val platformDot: android.view.View? = itemView.findViewById(R.id.platformDot)
         private val txtPlatformInitial: TextView? = itemView.findViewById(R.id.txtPlatformInitial)
 
@@ -74,6 +75,32 @@ class ContentAdapter(
                 }
             } else {
                 platformDot?.visibility = android.view.View.GONE
+            }
+
+            // Para series vinculadas a TVmaze: mostramos chiquito hasta dónde va
+            // lo último emitido, para que de un vistazo se note si te quedaste
+            // atrás ("che, me faltan 2 temporadas").
+            val hasRemoteInfo = item.typeEnum == ContentType.SERIE &&
+                item.tvMazeId != null && item.remoteSeason > 0
+            if (hasRemoteInfo) {
+                val isUpToDate = item.season > item.remoteSeason ||
+                    (item.season == item.remoteSeason && item.episode >= item.remoteEpisode)
+                txtRemoteInfo?.visibility = android.view.View.VISIBLE
+                if (isUpToDate) {
+                    txtRemoteInfo?.text = itemView.context.getString(R.string.remote_up_to_date)
+                    txtRemoteInfo?.setTextColor(
+                        androidx.core.content.ContextCompat.getColor(itemView.context, R.color.accent_cyan)
+                    )
+                } else {
+                    txtRemoteInfo?.text = itemView.context.getString(
+                        R.string.remote_latest, item.remoteSeason, item.remoteEpisode
+                    )
+                    txtRemoteInfo?.setTextColor(
+                        androidx.core.content.ContextCompat.getColor(itemView.context, R.color.accent_pink)
+                    )
+                }
+            } else {
+                txtRemoteInfo?.visibility = android.view.View.GONE
             }
 
             val corner = RoundedCorners(20)

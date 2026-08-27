@@ -50,6 +50,15 @@
 
     <string name="tvmaze_linked">Serie vinculada con TVmaze ✅ vas a recibir avisos de capítulos nuevos</string>
     <string name="tvmaze_not_found">No se encontró en TVmaze, se guardó igual pero sin avisos automáticos</string>
+    <string name="remote_latest">Último: T%1$d · C%2$d</string>
+    <string name="remote_up_to_date">✅ Estás al día</string>
     <string name="checking_updates">Buscando novedades…</string>
     <string name="check_updates_now">Buscar novedades</string>
+
+    <string name="search_photo_title">Buscar una foto</string>
+    <string name="search_photo_subtitle">Imágenes libres, sin problemas de derechos de autor</string>
+    <string name="search_photo_hint">¿Qué imagen buscás?</string>
+    <string name="search_photo_empty">No encontramos nada. Probá con otra palabra.</string>
+    <string name="search_photo_action">Buscar foto en la web</string>
+    <string name="paste_link_manually">Pegar un link (URL)</string>
 </resources>

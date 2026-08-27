@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_glass_sheet">
@@ -24,8 +25,9 @@
             android:orientation="horizontal">
 
             <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp">
+                android:id="@+id/imgPreviewContainer"
+                android:layout_width="64dp"
+                android:layout_height="64dp">
 
                 <ImageView
                     android:id="@+id/imgPreview"
@@ -43,11 +45,19 @@
                     android:fontFamily="sans-serif-medium"
                     android:gravity="center"
                     android:includeFontPadding="false"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     android:visibility="gone"
                     tools:text="Y"
                     xmlns:tools="http://schemas.android.com/tools" />
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/bg_button_apple_normal"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_camera" />
 
             </FrameLayout>
 
@@ -71,6 +81,14 @@
                 android:src="@drawable/ic_delete" />
 
         </LinearLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupPlatform"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:visibility="gone"
+            app:singleSelection="true" />
 
         <TextView
             android:layout_width="match_parent"

@@ -62,6 +62,31 @@ de Google ya no soportan nada anterior). `minSdk` está en `19` en
   esperar. Si no se encuentra la serie en TVmaze (nombre raro, sin
   internet, etc.), igual se guarda, solo que sin avisos automáticos.
 
+- **Editar la imagen después de guardar**: en el modal de "actualizar progreso"
+  ahora también se puede tocar la foto (lápiz en la esquina) para cambiarla,
+  en series, películas y videos. Para videos, además aparecen los chips de
+  plataforma para poder cambiarla directamente (esto reemplaza la imagen por
+  el badge de la nueva plataforma).
+- **Buscador de fotos tipo WhatsApp**: en vez de tener que pegar un link a
+  mano, tocar "Buscar foto en la web" abre un buscador con grilla de
+  resultados (como al cambiar la foto de un grupo de WhatsApp): escribís,
+  aparecen miniaturas, tocás una y queda elegida. Usa **Openverse**
+  (`api.openverse.org`), el buscador de imágenes de dominio público /
+  Creative Commons — gratis, sin API key, sin problemas de copyright.
+  Pegar un link manualmente sigue disponible como opción secundaria chiquita
+  por si no encontrás lo que buscabas.
+
+- **Buscador de fotos tipo WhatsApp**: al elegir imagen, ahora hay 3 opciones
+  igual de visibles: **galería**, **buscar en la web** (grilla de resultados
+  de Openverse — imágenes de dominio público / Creative Commons, gratis, sin
+  API key — escribís, tocás una miniatura y queda elegida) y **pegar un link
+  (URL)** a mano, por si ya tenés el link copiado.
+- **"Hasta dónde va" cada serie vinculada a TVmaze**: en la lista y en la
+  cuadrícula, debajo del progreso propio (T2 · C05 · 34 min), las series
+  vinculadas muestran chiquito lo último que salió: "Último: T4 · C10" en
+  rosa si te falta ponerte al día, o "✅ Estás al día" en celeste si ya
+  estás a la altura de lo emitido.
+
 ## Notas de diseño / cosas para retocar vos
 
 - Los 6 colores de plataforma y los degradados están en
