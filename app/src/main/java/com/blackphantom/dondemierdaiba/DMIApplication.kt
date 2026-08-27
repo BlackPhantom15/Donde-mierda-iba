@@ -1,10 +1,10 @@
 package com.blackphantom.dondemierdaiba
 
-import android.app.Application
+import androidx.multidex.MultiDexApplication
 import com.blackphantom.dondemierdaiba.util.NotificationHelper
 import com.blackphantom.dondemierdaiba.work.EpisodeCheckScheduler
 
-class DMIApplication : Application() {
+class DMIApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         NotificationHelper.ensureChannel(this)

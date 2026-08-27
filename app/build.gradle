@@ -17,6 +17,7 @@ android {
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -44,6 +45,10 @@ android {
 }
 
 dependencies {
+    // Con minSdk < 21 no alcanza con "un" dex: hace falta esta librería legacy
+    // para que el instalador arme varios .dex y no choque contra el límite
+    // de 65.536 métodos.
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     // Material 1.9.0 sigue soportando minSdk 19 y es compatible con compileSdk 34.
