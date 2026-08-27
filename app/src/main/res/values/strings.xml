@@ -61,4 +61,15 @@
     <string name="search_photo_empty">No encontramos nada. Probá con otra palabra.</string>
     <string name="search_photo_action">Buscar foto en la web</string>
     <string name="paste_link_manually">Pegar un link (URL)</string>
+
+    <string name="backup_menu_title">Tus listas</string>
+    <string name="backup_menu_subtitle">Compartilas o traelas de otro celular, sin cuentas ni logins</string>
+    <string name="backup_export_action">Compartir mis listas</string>
+    <string name="backup_import_action">Importar desde un archivo</string>
+    <string name="backup_export_error">No se pudo generar el archivo</string>
+    <string name="backup_import_error">Ese archivo no es un backup válido de Dónde Mierda Iba</string>
+    <string name="backup_import_confirm_title">Importar contenido</string>
+    <string name="backup_import_confirm_message">Se encontraron %1$d elementos (%2$d series, %3$d películas, %4$d videos). Se van a agregar a tu lista actual; si algo ya lo tenías, va a quedar duplicado y podés borrarlo a mano.</string>
+    <string name="backup_import_confirm_yes">Importar</string>
+    <string name="backup_import_success">Se importaron %1$d elementos ✅</string>
 </resources>

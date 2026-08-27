@@ -76,16 +76,34 @@ de Google ya no soportan nada anterior). `minSdk` está en `19` en
   Pegar un link manualmente sigue disponible como opción secundaria chiquita
   por si no encontrás lo que buscabas.
 
-- **Buscador de fotos tipo WhatsApp**: al elegir imagen, ahora hay 3 opciones
-  igual de visibles: **galería**, **buscar en la web** (grilla de resultados
-  de Openverse — imágenes de dominio público / Creative Commons, gratis, sin
-  API key — escribís, tocás una miniatura y queda elegida) y **pegar un link
-  (URL)** a mano, por si ya tenés el link copiado.
-- **"Hasta dónde va" cada serie vinculada a TVmaze**: en la lista y en la
-  cuadrícula, debajo del progreso propio (T2 · C05 · 34 min), las series
-  vinculadas muestran chiquito lo último que salió: "Último: T4 · C10" en
-  rosa si te falta ponerte al día, o "✅ Estás al día" en celeste si ya
-  estás a la altura de lo emitido.
+- **Buscador de fotos tipo WhatsApp**: al elegir imagen hay 3 opciones con
+  igual jerarquía: **galería**, **buscar en la web** (grilla de resultados,
+  escribís, tocás una miniatura y queda elegida) y **pegar un link (URL)** a
+  mano. El buscador usa **Wikimedia Commons** (`commons.wikimedia.org`, el
+  mismo banco de imágenes libres que usa Wikipedia) — gratis, sin API key,
+  con un límite de uso mucho más generoso que otras alternativas "sin
+  registro" como Openverse (que solo daba 5 búsquedas por hora y por eso a
+  veces no encontraba nada).
+- **"Hasta dónde va" cada serie vinculada a TVmaze**: debajo del progreso
+  propio (T2 · C05 · 34 min), las series vinculadas muestran chiquito lo
+  último que salió: "Último: T4 · C10" en rosa si te falta ponerte al día,
+  o "✅ Estás al día" en celeste si ya estás a la altura de lo emitido.
+- **Compartir e importar tus listas sin cuentas ni login**: el botón de
+  los 3 puntitos (⋮) en el header abre un menú con dos opciones:
+  - **Compartir mis listas**: genera un archivo `.json` con todo lo
+    guardado (series, películas y videos) y abre el selector nativo de
+    Android para mandarlo por WhatsApp, mail, Drive, lo que sea.
+  - **Importar desde un archivo**: elegís el archivo recibido y se agrega
+    todo a tu lista actual (te muestra antes cuántos elementos va a traer,
+    separados por tipo, para que confirmes).
+  - Además, si te llega el archivo por WhatsApp y lo tocás directamente
+    desde ahí, aparece "Dónde Mierda Iba" como opción para abrirlo e
+    importa automáticamente — no hace falta entrar a la app primero.
+  - Nota: importar siempre **agrega** contenido nuevo, nunca pisa ni
+    intenta "fusionar" por nombre — si algo ya lo tenías, va a quedar
+    duplicado y lo borrás a mano desde el modal de editar progreso. Se
+    hizo así a propósito para no arriesgar perder datos por una mala
+    coincidencia de nombres.
 
 ## Notas de diseño / cosas para retocar vos
 

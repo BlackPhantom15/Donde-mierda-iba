@@ -23,4 +23,10 @@ interface ContentDao {
 
     @Query("SELECT * FROM content_items WHERE type = 'SERIE' AND tvMazeId IS NOT NULL")
     suspend fun getSeriesLinkedToTvMaze(): List<ContentEntity>
+
+    @Query("SELECT * FROM content_items ORDER BY type, updatedAt DESC")
+    suspend fun getAllOnce(): List<ContentEntity>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(items: List<ContentEntity>): List<Long>
 }

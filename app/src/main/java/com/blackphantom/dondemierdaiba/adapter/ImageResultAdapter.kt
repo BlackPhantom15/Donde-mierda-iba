@@ -10,11 +10,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.blackphantom.dondemierdaiba.R
-import com.blackphantom.dondemierdaiba.network.OpenverseApi
+import com.blackphantom.dondemierdaiba.network.WikimediaApi
 
 class ImageResultAdapter(
-    private val onClick: (OpenverseApi.ImageResult) -> Unit
-) : ListAdapter<OpenverseApi.ImageResult, ImageResultAdapter.VH>(DIFF) {
+    private val onClick: (WikimediaApi.ImageResult) -> Unit
+) : ListAdapter<WikimediaApi.ImageResult, ImageResultAdapter.VH>(DIFF) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
@@ -29,7 +29,7 @@ class ImageResultAdapter(
     class VH(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
         private val imgThumb: ImageView = itemView.findViewById(R.id.imgThumb)
 
-        fun bind(item: OpenverseApi.ImageResult, onClick: (OpenverseApi.ImageResult) -> Unit) {
+        fun bind(item: WikimediaApi.ImageResult, onClick: (WikimediaApi.ImageResult) -> Unit) {
             Glide.with(itemView)
                 .load(item.thumbnailUrl)
                 .placeholder(R.drawable.ic_image_placeholder)
@@ -42,11 +42,11 @@ class ImageResultAdapter(
     }
 
     companion object {
-        private val DIFF = object : DiffUtil.ItemCallback<OpenverseApi.ImageResult>() {
-            override fun areItemsTheSame(oldItem: OpenverseApi.ImageResult, newItem: OpenverseApi.ImageResult) =
+        private val DIFF = object : DiffUtil.ItemCallback<WikimediaApi.ImageResult>() {
+            override fun areItemsTheSame(oldItem: WikimediaApi.ImageResult, newItem: WikimediaApi.ImageResult) =
                 oldItem.id == newItem.id
 
-            override fun areContentsTheSame(oldItem: OpenverseApi.ImageResult, newItem: OpenverseApi.ImageResult) =
+            override fun areContentsTheSame(oldItem: WikimediaApi.ImageResult, newItem: WikimediaApi.ImageResult) =
                 oldItem == newItem
         }
     }

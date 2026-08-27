@@ -1,23 +1,34 @@
 package com.blackphantom.dondemierdaiba.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.blackphantom.dondemierdaiba.R
+import com.blackphantom.dondemierdaiba.data.ContentEntity
 import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.databinding.ActivityMainBinding
 import com.blackphantom.dondemierdaiba.dialogs.AddContentDialog
+import com.blackphantom.dondemierdaiba.util.BackupManager
 import com.blackphantom.dondemierdaiba.util.Prefs
 import com.blackphantom.dondemierdaiba.work.EpisodeCheckScheduler
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +40,11 @@ class MainActivity : AppCompatActivity() {
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* el usuario decide, no forzamos nada */ }
+
+    private val importFileLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let { handleImportUri(it) }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +60,24 @@ class MainActivity : AppCompatActivity() {
         setupToggleView()
         setupFab()
         setupCheckUpdates()
+        setupBackupMenu()
         updateFabLabel()
         requestNotificationPermissionIfNeeded()
+
+        handleIncomingIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingIntent(intent)
+    }
+
+    /** Si la app se abrió tocando un archivo de backup compartido (WhatsApp, mail, etc.). */
+    private fun handleIncomingIntent(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_VIEW) {
+            intent.data?.let { handleImportUri(it) }
+        }
     }
 
     private fun requestNotificationPermissionIfNeeded() {
@@ -65,6 +97,89 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.checking_updates), Toast.LENGTH_SHORT).show()
         }
     }
+
+    // ---------- Backup: compartir / importar ----------
+
+    private fun setupBackupMenu() {
+        binding.btnBackupMenu.setOnClickListener { showBackupMenu() }
+    }
+
+    private fun showBackupMenu() {
+        val dialog = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_backup_menu, null)
+        dialog.setContentView(view)
+        dialog.setOnShowListener {
+            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?.setBackgroundResource(android.R.color.transparent)
+        }
+
+        view.findViewById<View>(R.id.btnExport).setOnClickListener {
+            dialog.dismiss()
+            exportAndShare()
+        }
+        view.findViewById<View>(R.id.btnImport).setOnClickListener {
+            dialog.dismiss()
+            // "*/*" en vez de "application/json": muchos gestores de archivos y
+            // apps de chat marcan los .json con un mime type genérico distinto.
+            importFileLauncher.launch("*/*")
+        }
+
+        dialog.show()
+    }
+
+    private fun exportAndShare() {
+        lifecycleScope.launch {
+            try {
+                val file = BackupManager.exportToFile(this@MainActivity)
+                val uri = FileProvider.getUriForFile(
+                    this@MainActivity, "$packageName.fileprovider", file
+                )
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/json"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(sendIntent, getString(R.string.backup_export_action)))
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, getString(R.string.backup_export_error), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun handleImportUri(uri: Uri) {
+        lifecycleScope.launch {
+            val items = BackupManager.readItemsFromUri(this@MainActivity, uri)
+            if (items.isNullOrEmpty()) {
+                Toast.makeText(this@MainActivity, getString(R.string.backup_import_error), Toast.LENGTH_LONG).show()
+            } else {
+                showImportConfirmDialog(items)
+            }
+        }
+    }
+
+    private fun showImportConfirmDialog(items: List<ContentEntity>) {
+        val series = items.count { it.type == ContentType.SERIE.name }
+        val peliculas = items.count { it.type == ContentType.PELICULA.name }
+        val videos = items.count { it.type == ContentType.VIDEO.name }
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.backup_import_confirm_title)
+            .setMessage(getString(R.string.backup_import_confirm_message, items.size, series, peliculas, videos))
+            .setPositiveButton(R.string.backup_import_confirm_yes) { _, _ ->
+                lifecycleScope.launch {
+                    val summary = BackupManager.importItems(this@MainActivity, items)
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.backup_import_success, summary.total),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    // ---------- Tabs / lista / búsqueda ----------
 
     private fun setupFragments() {
         val tx: FragmentTransaction = supportFragmentManager.beginTransaction()

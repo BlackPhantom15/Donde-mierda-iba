@@ -15,7 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.blackphantom.dondemierdaiba.adapter.ImageResultAdapter
 import com.blackphantom.dondemierdaiba.databinding.DialogImageWebSearchBinding
-import com.blackphantom.dondemierdaiba.network.OpenverseApi
+import com.blackphantom.dondemierdaiba.network.WikimediaApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -84,7 +84,7 @@ class ImageWebSearchDialog : BottomSheetDialogFragment() {
         binding.txtEmpty.visibility = View.GONE
 
         searchJob = lifecycleScope.launch {
-            val results = OpenverseApi.search(query)
+            val results = WikimediaApi.search(query)
             if (_binding == null) return@launch
             binding.progress.visibility = View.GONE
             adapter.submitList(results)
