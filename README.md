@@ -108,4 +108,4 @@ Repositorio personal. Si querés reutilizar código o adaptarlo a tu propio proy
 
 ---
 
-**Black Phantom Tech** · Argentina
+**Black Phantom Tech** · San Juan, Argentina

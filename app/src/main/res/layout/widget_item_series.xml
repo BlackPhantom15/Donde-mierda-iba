@@ -26,11 +26,11 @@
                 android:scaleType="centerCrop"
                 android:visibility="gone" />
 
-            <View
+            <ImageView
                 android:id="@+id/widgetDot"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/widget_dot" />
+                android:src="@drawable/widget_dot" />
 
         </FrameLayout>
 
