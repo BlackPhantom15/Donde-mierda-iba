@@ -53,6 +53,23 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <receiver
+            android:name=".widget.SeriesWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.blackphantom.dondemierdaiba.widget.ACTION_WIDGET_CLICK" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/series_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.SeriesWidgetService"
+            android:exported="true"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
     </application>
 
 </manifest>

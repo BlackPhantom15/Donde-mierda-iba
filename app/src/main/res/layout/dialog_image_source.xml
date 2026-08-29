@@ -39,7 +39,8 @@
         android:drawableStart="@drawable/ic_search"
         android:drawablePadding="10dp"
         android:gravity="center_vertical|start"
-        android:text="@string/search_photo_action" />
+        android:text="@string/search_photo_action"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/btnManualLink"

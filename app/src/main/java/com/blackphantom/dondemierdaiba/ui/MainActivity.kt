@@ -25,8 +25,10 @@ import com.blackphantom.dondemierdaiba.data.ContentEntity
 import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.databinding.ActivityMainBinding
 import com.blackphantom.dondemierdaiba.dialogs.AddContentDialog
+import com.blackphantom.dondemierdaiba.dialogs.EditProgressDialog
 import com.blackphantom.dondemierdaiba.util.BackupManager
 import com.blackphantom.dondemierdaiba.util.Prefs
+import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
 import com.blackphantom.dondemierdaiba.work.EpisodeCheckScheduler
 import kotlinx.coroutines.launch
 
@@ -73,10 +75,30 @@ class MainActivity : AppCompatActivity() {
         handleIncomingIntent(intent)
     }
 
-    /** Si la app se abrió tocando un archivo de backup compartido (WhatsApp, mail, etc.). */
+    /**
+     * Cubre 3 formas de "llegar" a la app desde afuera:
+     * 1) Tocando un archivo de backup compartido (WhatsApp, mail, etc.)
+     * 2) Tocando una serie en el widget de pantalla de inicio
+     * 3) Tocando el "+" del widget para agregar una serie nueva
+     */
     private fun handleIncomingIntent(intent: Intent?) {
-        if (intent?.action == Intent.ACTION_VIEW) {
+        if (intent == null) return
+
+        if (intent.action == Intent.ACTION_VIEW) {
             intent.data?.let { handleImportUri(it) }
+        }
+
+        val editItemId = intent.getLongExtra(EXTRA_OPEN_EDIT_ITEM_ID, -1L)
+        if (editItemId > 0) {
+            binding.tabLayout.getTabAt(0)?.select()
+            EditProgressDialog.newInstance(editItemId).show(supportFragmentManager, "edit_from_widget")
+            intent.removeExtra(EXTRA_OPEN_EDIT_ITEM_ID)
+        }
+
+        if (intent.getBooleanExtra(EXTRA_OPEN_ADD_SERIE, false)) {
+            binding.tabLayout.getTabAt(0)?.select()
+            AddContentDialog.newInstance(ContentType.SERIE).show(supportFragmentManager, "add_from_widget")
+            intent.removeExtra(EXTRA_OPEN_ADD_SERIE)
         }
     }
 
@@ -173,6 +195,7 @@ class MainActivity : AppCompatActivity() {
                         getString(R.string.backup_import_success, summary.total),
                         Toast.LENGTH_LONG
                     ).show()
+                    SeriesWidgetProvider.requestRefresh(this@MainActivity)
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -250,5 +273,10 @@ class MainActivity : AppCompatActivity() {
             ContentType.PELICULA -> getString(R.string.add_pelicula)
             ContentType.VIDEO -> getString(R.string.add_video)
         }
+    }
+
+    companion object {
+        const val EXTRA_OPEN_EDIT_ITEM_ID = "extra_open_edit_item_id"
+        const val EXTRA_OPEN_ADD_SERIE = "extra_open_add_serie"
     }
 }

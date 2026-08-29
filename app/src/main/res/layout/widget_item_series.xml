@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/widget_item_background"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Fila 1: miniatura + nombre + progreso. Tocarla abre el editor completo. -->
+    <LinearLayout
+        android:id="@+id/widgetRowContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="38dp"
+            android:layout_height="38dp">
+
+            <ImageView
+                android:id="@+id/widgetThumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/widgetDot"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/widget_dot" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widgetItemName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="#F5F3FF"
+                android:textSize="13sp"
+                tools:text="Breaking Bad" />
+
+            <TextView
+                android:id="@+id/widgetItemMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:textColor="#B6B0D6"
+                android:textSize="11sp"
+                tools:text="T2 · C05 · 34 min" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Fila 2: steppers rápidos, sin tener que abrir la app. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/widgetBtnSeasonPlus"
+            android:layout_width="0dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_plus"
+            android:gravity="center"
+            android:text="@string/widget_stepper_season"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widgetBtnMinus"
+            android:layout_width="0dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_minus"
+            android:gravity="center"
+            android:text="@string/widget_stepper_episode_minus"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widgetBtnPlus"
+            android:layout_width="0dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_plus"
+            android:gravity="center"
+            android:text="@string/widget_stepper_episode_plus"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widgetBtnMinutePlus"
+            android:layout_width="0dp"
+            android:layout_height="26dp"
+            android:layout_weight="1"
+            android:background="@drawable/widget_btn_plus"
+            android:gravity="center"
+            android:text="@string/widget_stepper_minute"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

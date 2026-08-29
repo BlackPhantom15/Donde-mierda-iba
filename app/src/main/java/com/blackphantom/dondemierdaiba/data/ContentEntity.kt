@@ -25,6 +25,10 @@ data class ContentEntity(
     val remoteSeason: Int = 0,   // última temporada emitida que ya conocíamos
     val remoteEpisode: Int = 0,  // último capítulo emitido que ya conocíamos
 
+    // Series marcadas por el usuario como "viendo ahora": son las que
+    // aparecen en el widget de pantalla de inicio. Solo aplica a SERIE.
+    val isPinnedToWidget: Boolean = false,
+
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {

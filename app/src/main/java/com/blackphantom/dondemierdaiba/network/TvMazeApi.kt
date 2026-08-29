@@ -22,7 +22,7 @@ object TvMazeApi {
     private const val BASE_URL = "https://api.tvmaze.com"
     private const val TIMEOUT_MS = 8000
 
-    data class ShowMatch(val id: Int, val name: String)
+    data class ShowMatch(val id: Int, val name: String, val imageUrl: String?)
     data class LatestEpisode(val season: Int, val number: Int, val name: String)
 
     /** Busca una serie por nombre y devuelve el resultado más relevante de TVmaze. */
@@ -34,7 +34,12 @@ object TvMazeApi {
             val results = JSONArray(body)
             if (results.length() == 0) return@withContext null
             val show = results.getJSONObject(0).getJSONObject("show")
-            ShowMatch(id = show.getInt("id"), name = show.getString("name"))
+            val image = show.optJSONObject("image")
+            // "original" es más grande/nítida que "medium"; si no viene ninguna
+            // (pasa con series muy poco conocidas), queda null y no se usa.
+            val imageUrl = image?.optString("original")?.takeIf { it.isNotBlank() }
+                ?: image?.optString("medium")?.takeIf { it.isNotBlank() }
+            ShowMatch(id = show.getInt("id"), name = show.getString("name"), imageUrl = imageUrl)
         } catch (e: Exception) {
             null
         }

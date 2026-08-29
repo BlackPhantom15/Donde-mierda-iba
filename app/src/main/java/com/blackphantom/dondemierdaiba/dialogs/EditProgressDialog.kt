@@ -27,6 +27,7 @@ import com.blackphantom.dondemierdaiba.databinding.DialogEditProgressBinding
 import com.blackphantom.dondemierdaiba.util.ImagePickerHelper
 import com.blackphantom.dondemierdaiba.util.NumberPickerStyler
 import com.blackphantom.dondemierdaiba.util.PlatformVisuals
+import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 
@@ -106,7 +107,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             val item = dao.getById(itemId) ?: run { dismiss(); return@launch }
             currentItem = item
 
-            binding.txtName.text = item.name
+            binding.txtName.setText(item.name)
 
             // Estado inicial de imagen/plataforma = lo que ya tenía guardado
             pickedImageUri = item.imageUri
@@ -133,6 +134,27 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             if (item.typeEnum == ContentType.VIDEO) {
                 binding.chipGroupPlatform.visibility = View.VISIBLE
                 setupPlatformChips()
+            }
+
+            // Pin "viendo ahora": solo aplica a series, son las que aparecen
+            // en el widget de pantalla de inicio.
+            if (item.typeEnum == ContentType.SERIE) {
+                binding.btnPinWidget.visibility = View.VISIBLE
+                updatePinIcon(item.isPinnedToWidget)
+                binding.btnPinWidget.setOnClickListener {
+                    val newValue = !(currentItem?.isPinnedToWidget ?: false)
+                    lifecycleScope.launch {
+                        dao.setPinnedToWidget(item.id, newValue, System.currentTimeMillis())
+                        currentItem = currentItem?.copy(isPinnedToWidget = newValue)
+                        updatePinIcon(newValue)
+                        SeriesWidgetProvider.requestRefresh(requireContext())
+                        Toast.makeText(
+                            requireContext(),
+                            getString(if (newValue) R.string.widget_pin_added else R.string.widget_pin_removed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
 
             // Configurar "candados" según el tipo
@@ -169,22 +191,32 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             binding.btnDelete.setOnClickListener {
                 lifecycleScope.launch {
                     dao.delete(item)
+                    if (item.typeEnum == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
                     dismiss()
                 }
             }
 
             binding.btnUpdate.setOnClickListener {
+                val newName = binding.txtName.text.toString().trim()
+                if (newName.isEmpty()) {
+                    binding.txtName.error = getString(R.string.field_name)
+                    return@setOnClickListener
+                }
+
                 val updated = item.copy(
+                    name = newName,
                     season = if (item.typeEnum == ContentType.SERIE) binding.pickerSeason.value else item.season,
                     episode = if (item.typeEnum == ContentType.SERIE) binding.pickerEpisode.value else item.episode,
                     minute = binding.pickerMinute.value,
                     imageUri = pickedImageUri,
                     imageSource = pickedImageSource.name,
                     platform = if (item.typeEnum == ContentType.VIDEO) selectedPlatform?.name else item.platform,
+                    isPinnedToWidget = currentItem?.isPinnedToWidget ?: item.isPinnedToWidget,
                     updatedAt = System.currentTimeMillis()
                 )
                 lifecycleScope.launch {
                     dao.update(updated)
+                    if (item.typeEnum == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
                     dismiss()
                 }
             }
@@ -227,6 +259,12 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             }
             binding.chipGroupPlatform.addView(chip)
         }
+    }
+
+    private fun updatePinIcon(pinned: Boolean) {
+        binding.btnPinWidget.setImageResource(
+            if (pinned) R.drawable.ic_pin_filled else R.drawable.ic_pin_outline
+        )
     }
 
     private fun renderImage() {

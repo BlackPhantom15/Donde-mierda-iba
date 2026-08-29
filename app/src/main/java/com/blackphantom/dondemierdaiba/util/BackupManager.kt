@@ -93,6 +93,7 @@ object BackupManager {
         put("tvMazeId", item.tvMazeId ?: JSONObject.NULL)
         put("remoteSeason", item.remoteSeason)
         put("remoteEpisode", item.remoteEpisode)
+        put("isPinnedToWidget", item.isPinnedToWidget)
     }
 
     private fun jsonToItem(obj: JSONObject): ContentEntity? {
@@ -115,6 +116,7 @@ object BackupManager {
             tvMazeId = if (obj.isNull("tvMazeId")) null else obj.optInt("tvMazeId"),
             remoteSeason = obj.optInt("remoteSeason", 0),
             remoteEpisode = obj.optInt("remoteEpisode", 0),
+            isPinnedToWidget = obj.optBoolean("isPinnedToWidget", false),
             createdAt = System.currentTimeMillis(),
             updatedAt = System.currentTimeMillis()
         )

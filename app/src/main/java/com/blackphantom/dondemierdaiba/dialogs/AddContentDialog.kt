@@ -27,6 +27,7 @@ import com.blackphantom.dondemierdaiba.databinding.DialogAddContentBinding
 import com.blackphantom.dondemierdaiba.dialogs.ImageWebSearchDialog
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
 import com.blackphantom.dondemierdaiba.util.ImagePickerHelper
+import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 
@@ -203,6 +204,15 @@ class AddContentDialog : BottomSheetDialogFragment() {
                 val match = TvMazeApi.searchShow(name)
                 if (match != null) {
                     tvMazeId = match.id
+
+                    // Si el usuario no eligió ninguna foto a mano (ni galería ni
+                    // link), usamos automáticamente el póster que trae TVmaze.
+                    // Si sí eligió una, esa gana siempre.
+                    if (pickedImageSource == ImageSource.NONE && !match.imageUrl.isNullOrBlank()) {
+                        pickedImageUri = match.imageUrl
+                        pickedImageSource = ImageSource.WEB
+                    }
+
                     val latest = TvMazeApi.latestAiredEpisode(match.id)
                     if (latest != null) {
                         remoteSeason = latest.season
@@ -226,6 +236,7 @@ class AddContentDialog : BottomSheetDialogFragment() {
             )
 
             AppDatabase.getInstance(requireContext()).contentDao().insert(entity)
+            if (type == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
 
             if (type == ContentType.SERIE && isAdded) {
                 val msgRes = if (tvMazeId != null) R.string.tvmaze_linked else R.string.tvmaze_not_found

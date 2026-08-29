@@ -72,4 +72,15 @@
     <string name="backup_import_confirm_message">Se encontraron %1$d elementos (%2$d series, %3$d películas, %4$d videos). Se van a agregar a tu lista actual; si algo ya lo tenías, va a quedar duplicado y podés borrarlo a mano.</string>
     <string name="backup_import_confirm_yes">Importar</string>
     <string name="backup_import_success">Se importaron %1$d elementos ✅</string>
+
+    <string name="widget_title">Viendo ahora</string>
+    <string name="widget_description">Tus series "viendo ahora": sumá capítulos con un toque</string>
+    <string name="widget_empty">Marcá alguna serie como "viendo ahora" 📌 desde la app para que aparezca acá</string>
+    <string name="widget_pin_added">📌 Agregada al widget "Viendo ahora"</string>
+    <string name="widget_pin_removed">Sacada del widget</string>
+
+    <string name="widget_stepper_season">T+1</string>
+    <string name="widget_stepper_episode_minus">C−</string>
+    <string name="widget_stepper_episode_plus">C+</string>
+    <string name="widget_stepper_minute">+5m</string>
 </resources>
