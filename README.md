@@ -32,6 +32,7 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Sumá capítulos, temporada o minutos **sin abrir la app**, tocando los botones de cada fila.
 - Tocar el nombre de una serie abre la app directo en su editor completo.
 - Widget redimensionable, sin polling agresivo (se refresca por evento, no consume batería de fondo).
+- Estética "liquid glass": tarjetas en capas con degradado, brillo diagonal y sombra sutil, avatar con aro, botones tipo píldora con iconografía real (no texto suelto), y el mismo código de color rosa/celeste que la lista principal para marcar si estás atrasado o al día — todo dentro de lo que permite `RemoteViews` (sin blur real ni fuentes custom, esas son limitaciones del sistema de widgets de Android, no del diseño).
 
 **Backup portable**
 - Exportá todas tus listas (series, películas, videos) a un único archivo `.json`.

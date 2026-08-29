@@ -53,6 +53,7 @@ class SeriesWidgetFactory(private val context: Context) : RemoteViewsService.Rem
             R.id.widgetItemMeta,
             "T${item.season} · C${String.format("%02d", item.episode)} · ${item.minute} min"
         )
+        rv.setTextColor(R.id.widgetItemMeta, metaColorFor(item))
 
         // Miniatura real si el usuario cargó una (galería o web); si no,
         // un punto de color generado a partir del id, para que cada fila
@@ -85,6 +86,17 @@ class SeriesWidgetFactory(private val context: Context) : RemoteViewsService.Rem
     private fun fillIntent(action: String, itemId: Long): Intent = Intent().apply {
         putExtra(SeriesWidgetProvider.EXTRA_ACTION, action)
         putExtra(SeriesWidgetProvider.EXTRA_ITEM_ID, itemId)
+    }
+
+    /** Mismo criterio de color que usa la lista principal de la app. */
+    private fun metaColorFor(item: ContentEntity): Int {
+        val hasRemoteInfo = item.tvMazeId != null && item.remoteSeason > 0
+        if (!hasRemoteInfo) return Color.parseColor("#B6B0D6") // gris/lila neutro
+
+        val isUpToDate = item.season > item.remoteSeason ||
+            (item.season == item.remoteSeason && item.episode >= item.remoteEpisode)
+
+        return if (isUpToDate) Color.parseColor("#22D3EE") else Color.parseColor("#F472B6")
     }
 
     /**

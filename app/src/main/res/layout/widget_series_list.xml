@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,30 +12,31 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="4dp"
-        android:paddingEnd="4dp"
-        android:paddingBottom="6dp">
+        android:paddingEnd="2dp"
+        android:paddingBottom="10dp">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/ic_logo" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="9dp"
             android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.01"
             android:text="@string/widget_title"
-            android:textColor="#F5F3FF"
-            android:textSize="14sp" />
+            android:textColor="#F8F7FF"
+            android:textSize="14.5sp" />
 
         <ImageView
             android:id="@+id/widgetBtnAdd"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/widget_btn_plus"
-            android:padding="7dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/widget_btn_add_circle"
+            android:padding="8dp"
             android:src="@drawable/ic_widget_plus" />
 
     </LinearLayout>
@@ -50,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@android:color/transparent"
-            android:dividerHeight="6dp"
+            android:dividerHeight="8dp"
             android:listSelector="@android:color/transparent"
             android:scrollbars="none" />
 
