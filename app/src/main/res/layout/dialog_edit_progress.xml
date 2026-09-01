@@ -116,96 +116,147 @@
             android:textColor="@color/text_secondary"
             android:textSize="13sp" />
 
-        <!-- Grupo de "candados": temporada / capítulo / minuto -->
+        <!-- Grupo de "candados": temporada / capítulo / duración -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_wheel_container"
-            android:gravity="center"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:paddingTop="6dp"
             android:paddingBottom="6dp">
 
             <LinearLayout
-                android:id="@+id/columnSeason"
-                android:layout_width="0dp"
+                android:id="@+id/rowSeasonEpisode"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/columnSeason"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/field_season"
-                    android:textColor="@color/text_muted"
-                    android:textSize="11sp" />
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                <NumberPicker
-                    android:id="@+id/pickerSeason"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/field_season"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
 
-            </LinearLayout>
+                    <NumberPicker
+                        android:id="@+id/pickerSeason"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
 
-            <View
-                android:id="@+id/dividerSeasonEpisode"
-                android:layout_width="1dp"
-                android:layout_height="40dp"
-                android:background="@color/glass_stroke"
-                android:visibility="gone" />
+                </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/columnEpisode"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:visibility="gone">
+                <View
+                    android:id="@+id/dividerSeasonEpisode"
+                    android:layout_width="1dp"
+                    android:layout_height="40dp"
+                    android:background="@color/glass_stroke" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/columnEpisode"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/field_episode"
-                    android:textColor="@color/text_muted"
-                    android:textSize="11sp" />
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                <NumberPicker
-                    android:id="@+id/pickerEpisode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/txtEpisodeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/field_episode"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+
+                    <NumberPicker
+                        android:id="@+id/pickerEpisode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
             <View
                 android:id="@+id/dividerEpisodeMinute"
-                android:layout_width="1dp"
-                android:layout_height="40dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="6dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:background="@color/glass_stroke"
                 android:visibility="gone" />
 
             <LinearLayout
-                android:id="@+id/columnMinute"
-                android:layout_width="0dp"
+                android:id="@+id/rowDuration"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/columnHour"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/field_hours"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+
+                    <NumberPicker
+                        android:id="@+id/pickerHour"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/field_minute"
+                    android:layout_marginTop="14dp"
+                    android:text=":"
                     android:textColor="@color/text_muted"
-                    android:textSize="11sp" />
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-                <NumberPicker
-                    android:id="@+id/pickerMinute"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:id="@+id/columnMinute"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/field_minute"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+
+                    <NumberPicker
+                        android:id="@+id/pickerMinute"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
 
             </LinearLayout>
 

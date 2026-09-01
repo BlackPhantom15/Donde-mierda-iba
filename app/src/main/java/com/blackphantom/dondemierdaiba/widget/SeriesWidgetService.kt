@@ -13,6 +13,7 @@ import com.blackphantom.dondemierdaiba.R
 import com.blackphantom.dondemierdaiba.data.AppDatabase
 import com.blackphantom.dondemierdaiba.data.ContentEntity
 import com.blackphantom.dondemierdaiba.data.ImageSource
+import com.blackphantom.dondemierdaiba.util.DurationFormatter
 import java.util.concurrent.TimeUnit
 
 class SeriesWidgetService : RemoteViewsService() {
@@ -51,7 +52,7 @@ class SeriesWidgetFactory(private val context: Context) : RemoteViewsService.Rem
         rv.setTextViewText(R.id.widgetItemName, item.name)
         rv.setTextViewText(
             R.id.widgetItemMeta,
-            "T${item.season} · C${String.format("%02d", item.episode)} · ${item.minute} min"
+            "T${item.season} · C${String.format("%02d", item.episode)} · ${DurationFormatter.format(item.minute)}"
         )
         rv.setTextColor(R.id.widgetItemMeta, metaColorFor(item))
 

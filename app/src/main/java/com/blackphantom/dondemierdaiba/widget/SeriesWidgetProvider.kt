@@ -7,10 +7,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.widget.RemoteViews
+import android.widget.Toast
 import com.blackphantom.dondemierdaiba.R
 import com.blackphantom.dondemierdaiba.data.AppDatabase
 import com.blackphantom.dondemierdaiba.ui.MainActivity
+import com.blackphantom.dondemierdaiba.util.EpisodeCounts
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,9 +56,15 @@ class SeriesWidgetProvider : AppWidgetProvider() {
                         val item = dao.getByIdSync(itemId)
                         if (item != null) {
                             val delta = if (action == ACTION_INC_EPISODE) 1 else -1
-                            val newEpisode = (item.episode + delta).coerceIn(0, 999)
-                            dao.updateEpisodeSync(itemId, newEpisode, System.currentTimeMillis())
-                            requestRefresh(context)
+                            val maxForSeason = EpisodeCounts.fromJson(item.episodeCountsJson)[item.season] ?: 999
+                            val newEpisode = (item.episode + delta).coerceIn(0, maxForSeason)
+
+                            if (action == ACTION_INC_EPISODE && item.episode >= maxForSeason && maxForSeason < 999) {
+                                showToastOnMainThread(context, R.string.widget_season_complete)
+                            } else {
+                                dao.updateEpisodeSync(itemId, newEpisode, System.currentTimeMillis())
+                                requestRefresh(context)
+                            }
                         }
                     } finally {
                         pending.finish()
@@ -168,6 +178,13 @@ class SeriesWidgetProvider : AppWidgetProvider() {
                 flags = flags or PendingIntent.FLAG_IMMUTABLE
             }
             return flags
+        }
+
+        /** Toast.makeText necesita el hilo principal; acá estamos en uno de fondo. */
+        private fun showToastOnMainThread(context: Context, resId: Int) {
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(context, resId, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

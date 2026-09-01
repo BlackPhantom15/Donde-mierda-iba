@@ -19,7 +19,9 @@
     <string name="field_name">Nombre</string>
     <string name="field_season">Temporada</string>
     <string name="field_episode">Capítulo</string>
+    <string name="field_episode_of">Capítulo (%1$d)</string>
     <string name="field_minute">Minuto</string>
+    <string name="field_hours">Hora</string>
     <string name="field_image">Imagen</string>
 
     <string name="pick_from_gallery">Elegir de la galería</string>
@@ -30,6 +32,8 @@
     <string name="cancel">Cancelar</string>
     <string name="delete">Eliminar</string>
     <string name="update">Actualizar</string>
+    <string name="close">Cerrar</string>
+    <string name="change_image">Cambiar imagen</string>
 
     <string name="choose_platform">Elegí la plataforma</string>
 
@@ -73,6 +77,11 @@
     <string name="backup_import_confirm_yes">Importar</string>
     <string name="backup_import_success">Se importaron %1$d elementos ✅</string>
 
+    <string name="battery_dialog_title">Para que los avisos lleguen solos</string>
+    <string name="battery_dialog_message">Android puede demorar o directamente no ejecutar el chequeo de nuevos capítulos si la app queda en modo ahorro de batería. Si excluís Dónde Mierda Iba de esa optimización, los avisos van a llegar de forma mucho más confiable sin que tengas que abrir la app.</string>
+    <string name="battery_dialog_open_settings">Abrir ajustes</string>
+    <string name="battery_dialog_not_now">Ahora no</string>
+
     <string name="widget_title">Viendo ahora</string>
     <string name="widget_description">Tus series "viendo ahora": sumá capítulos con un toque</string>
     <string name="widget_empty">Marcá alguna serie como "viendo ahora" 📌 desde la app para que aparezca acá</string>
@@ -83,4 +92,5 @@
     <string name="widget_stepper_episode_minus">C−</string>
     <string name="widget_stepper_episode_plus">C+</string>
     <string name="widget_stepper_minute">+5m</string>
+    <string name="widget_season_complete">Ya llegaste al último capítulo conocido de esta temporada</string>
 </resources>

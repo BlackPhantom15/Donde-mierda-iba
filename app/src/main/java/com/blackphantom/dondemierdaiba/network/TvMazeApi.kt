@@ -65,6 +65,32 @@ object TvMazeApi {
         }
     }
 
+    /**
+     * Devuelve, para cada temporada, cuántos capítulos tiene según TVmaze
+     * (mapa temporada -> cantidad). Se usa para no dejar poner un capítulo
+     * que esa temporada todavía no tiene. Ojo: en una temporada que está
+     * emitiéndose, esto es "lo que salió hasta ahora", no el total final,
+     * porque TVmaze tampoco lo sabe todavía.
+     */
+    suspend fun episodesBySeason(showId: Int): Map<Int, Int>? = withContext(Dispatchers.IO) {
+        val body = get("$BASE_URL/shows/$showId/episodes") ?: return@withContext null
+        try {
+            val episodes = JSONArray(body)
+            val counts = mutableMapOf<Int, Int>()
+            for (i in 0 until episodes.length()) {
+                val ep = episodes.getJSONObject(i)
+                val season = ep.optInt("season", 0)
+                val number = ep.optInt("number", 0)
+                if (season <= 0 || number <= 0) continue // saltea especiales sin numerar
+                val current = counts[season] ?: 0
+                if (number > current) counts[season] = number
+            }
+            if (counts.isEmpty()) null else counts
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     private fun get(urlString: String): String? {
         var connection: HttpURLConnection? = null
         return try {

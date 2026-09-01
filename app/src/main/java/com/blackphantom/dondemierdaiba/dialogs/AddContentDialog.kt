@@ -27,6 +27,8 @@ import com.blackphantom.dondemierdaiba.databinding.DialogAddContentBinding
 import com.blackphantom.dondemierdaiba.dialogs.ImageWebSearchDialog
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
 import com.blackphantom.dondemierdaiba.util.ImagePickerHelper
+import com.blackphantom.dondemierdaiba.util.ImagePreviewHelper
+import com.blackphantom.dondemierdaiba.util.EpisodeCounts
 import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
@@ -111,22 +113,33 @@ class AddContentDialog : BottomSheetDialogFragment() {
             setupPlatformChips()
         } else {
             binding.imgPreview.setOnClickListener {
-                ImagePickerHelper.showImageSourceChooser(
-                    requireContext(),
-                    fragmentManager = childFragmentManager,
-                    initialQuery = binding.edtName.text.toString().trim(),
-                    onPickGallery = { requestGalleryImage() },
-                    onManualUrl = { url ->
-                        pickedImageUri = url
-                        pickedImageSource = ImageSource.WEB
-                        renderPreview()
+                val uri = pickedImageUri
+                if ((pickedImageSource == ImageSource.LOCAL || pickedImageSource == ImageSource.WEB) && !uri.isNullOrBlank()) {
+                    ImagePreviewHelper.showPreview(requireContext(), uri) {
+                        openImageChooser()
                     }
-                )
+                } else {
+                    openImageChooser()
+                }
             }
         }
 
         binding.btnCancel.setOnClickListener { dismiss() }
         binding.btnSave.setOnClickListener { save() }
+    }
+
+    private fun openImageChooser() {
+        ImagePickerHelper.showImageSourceChooser(
+            requireContext(),
+            fragmentManager = childFragmentManager,
+            initialQuery = binding.edtName.text.toString().trim(),
+            onPickGallery = { requestGalleryImage() },
+            onManualUrl = { url ->
+                pickedImageUri = url
+                pickedImageSource = ImageSource.WEB
+                renderPreview()
+            }
+        )
     }
 
     private fun requestGalleryImage() {
@@ -184,7 +197,9 @@ class AddContentDialog : BottomSheetDialogFragment() {
             return
         }
 
-        val minute = binding.edtMinute.text.toString().trim().toIntOrNull() ?: 0
+        val hours = binding.edtHours.text.toString().trim().toIntOrNull() ?: 0
+        val minutesOnly = binding.edtMinute.text.toString().trim().toIntOrNull() ?: 0
+        val minute = hours * 60 + minutesOnly
         val season = binding.edtSeason.text.toString().trim().toIntOrNull() ?: 0
         val episode = binding.edtEpisode.text.toString().trim().toIntOrNull() ?: 0
 
@@ -198,6 +213,7 @@ class AddContentDialog : BottomSheetDialogFragment() {
             var tvMazeId: Int? = null
             var remoteSeason = 0
             var remoteEpisode = 0
+            var episodeCountsJson: String? = null
 
             if (type == ContentType.SERIE) {
                 binding.btnSave.text = getString(R.string.checking_updates)
@@ -218,6 +234,9 @@ class AddContentDialog : BottomSheetDialogFragment() {
                         remoteSeason = latest.season
                         remoteEpisode = latest.number
                     }
+
+                    val counts = TvMazeApi.episodesBySeason(match.id)
+                    if (counts != null) episodeCountsJson = EpisodeCounts.toJson(counts)
                 }
             }
 
@@ -232,7 +251,8 @@ class AddContentDialog : BottomSheetDialogFragment() {
                 platform = selectedPlatform?.name,
                 tvMazeId = tvMazeId,
                 remoteSeason = remoteSeason,
-                remoteEpisode = remoteEpisode
+                remoteEpisode = remoteEpisode,
+                episodeCountsJson = episodeCountsJson
             )
 
             AppDatabase.getInstance(requireContext()).contentDao().insert(entity)

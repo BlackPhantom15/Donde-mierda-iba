@@ -9,6 +9,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.blackphantom.dondemierdaiba.data.AppDatabase
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
+import com.blackphantom.dondemierdaiba.util.EpisodeCounts
 import com.blackphantom.dondemierdaiba.util.NotificationHelper
 
 /**
@@ -43,10 +44,18 @@ class NewEpisodeCheckWorker(
                 if (canNotify) {
                     NotificationHelper.notifyNewEpisode(applicationContext, item, latest)
                 }
+
+                // Aprovechamos que ya sabemos que hay algo nuevo para refrescar
+                // también cuántos capítulos tiene cada temporada (así el
+                // candado de capítulo del editor y del widget quedan al día).
+                val counts = TvMazeApi.episodesBySeason(showId)
+                val countsJson = if (counts != null) EpisodeCounts.toJson(counts) else item.episodeCountsJson
+
                 dao.update(
                     item.copy(
                         remoteSeason = latest.season,
-                        remoteEpisode = latest.number
+                        remoteEpisode = latest.number,
+                        episodeCountsJson = countsJson
                     )
                 )
             }

@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         setupBackupMenu()
         updateFabLabel()
         requestNotificationPermissionIfNeeded()
+        requestBatteryOptimizationExemptionIfNeeded()
 
         handleIncomingIntent(intent)
     }
@@ -111,6 +114,39 @@ class MainActivity : AppCompatActivity() {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+    }
+
+    /**
+     * En Android, el sistema (y sobre todo las capas propias de fabricantes
+     * como Xiaomi/Samsung/Huawei) puede demorar o directamente no ejecutar
+     * el chequeo periódico de nuevos capítulos si la app "no se usó hace
+     * rato". Excluirla del ahorro de batería lo hace mucho más confiable.
+     * Se pregunta una sola vez (no se vuelve a molestar si el usuario dice
+     * "ahora no"), y no hace nada si el dispositivo ya la tiene excluida.
+     */
+    private fun requestBatteryOptimizationExemptionIfNeeded() {
+        if (Prefs.wasBatteryPromptShown(this)) return
+
+        val powerManager = getSystemService(POWER_SERVICE) as? PowerManager ?: return
+        if (powerManager.isIgnoringBatteryOptimizations(packageName)) return
+
+        Prefs.setBatteryPromptShown(this)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.battery_dialog_title)
+            .setMessage(R.string.battery_dialog_message)
+            .setPositiveButton(R.string.battery_dialog_open_settings) { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    // Algunos fabricantes no implementan bien este intent; no rompemos nada.
+                }
+            }
+            .setNegativeButton(R.string.battery_dialog_not_now, null)
+            .show()
     }
 
     private fun setupCheckUpdates() {

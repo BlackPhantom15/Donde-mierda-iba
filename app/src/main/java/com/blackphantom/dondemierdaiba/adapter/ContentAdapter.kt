@@ -17,6 +17,7 @@ import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.data.ImageSource
 import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.util.PlatformVisuals
+import com.blackphantom.dondemierdaiba.util.DurationFormatter
 
 class ContentAdapter(
     private var isGrid: Boolean,
@@ -57,12 +58,12 @@ class ContentAdapter(
                 ContentType.SERIE -> itemView.context.getString(
                     R.string.season_short
                 ) + "${item.season} · " + itemView.context.getString(R.string.episode_short) +
-                    "${item.episode} · ${item.minute} ${itemView.context.getString(R.string.minute_short)}"
-                ContentType.PELICULA -> "${item.minute} ${itemView.context.getString(R.string.minute_short)}"
+                    "${item.episode} · ${DurationFormatter.format(item.minute)}"
+                ContentType.PELICULA -> DurationFormatter.format(item.minute)
                 ContentType.VIDEO -> {
                     val platform = VideoPlatform.fromNameOrNull(item.platform)
                     val platformLabel = platform?.label ?: ""
-                    "$platformLabel · ${item.minute} ${itemView.context.getString(R.string.minute_short)}"
+                    "$platformLabel · ${DurationFormatter.format(item.minute)}"
                 }
             }
 

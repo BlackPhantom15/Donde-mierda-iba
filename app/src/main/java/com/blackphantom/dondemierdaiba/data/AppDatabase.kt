@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.migration.Migration
 
-@Database(entities = [ContentEntity::class], version = 3, exportSchema = false)
+@Database(entities = [ContentEntity::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun contentDao(): ContentDao
@@ -26,6 +26,16 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v3 -> v4: se agregó episodeCountsJson (capítulos por temporada,
+        // según TVmaze) para limitar el candado de capítulo al máximo real.
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE content_items ADD COLUMN episodeCountsJson TEXT"
+                )
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -33,11 +43,11 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "donde_mierda_iba.db"
                 )
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     // Red de seguridad solo para saltos de versión muy viejos que no
-                    // tengan un camino de migración explícito (ej: alguien que viene
-                    // de la v1 original). Para el caso normal (v2 -> v3) se usa la
-                    // migración real de arriba y no se pierde nada.
+                    // tengan un camino de migración explícito. Para los casos
+                    // normales (v2 -> v3 -> v4) se usan las migraciones reales de
+                    // arriba y no se pierde nada.
                     .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }
             }

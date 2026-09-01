@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -24,7 +25,10 @@ import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.data.ImageSource
 import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.databinding.DialogEditProgressBinding
+import com.blackphantom.dondemierdaiba.network.TvMazeApi
+import com.blackphantom.dondemierdaiba.util.EpisodeCounts
 import com.blackphantom.dondemierdaiba.util.ImagePickerHelper
+import com.blackphantom.dondemierdaiba.util.ImagePreviewHelper
 import com.blackphantom.dondemierdaiba.util.NumberPickerStyler
 import com.blackphantom.dondemierdaiba.util.PlatformVisuals
 import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
@@ -43,6 +47,11 @@ class EditProgressDialog : BottomSheetDialogFragment() {
     private var pickedImageUri: String? = null
     private var pickedImageSource: ImageSource = ImageSource.NONE
     private var selectedPlatform: VideoPlatform? = null
+
+    // Capítulos por temporada (según TVmaze), para no dejar poner un capítulo
+    // que esa temporada no tiene. Vacío si la serie no está vinculada o
+    // todavía no se pudo consultar.
+    private var episodeCounts: Map<Int, Int> = emptyMap()
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -106,6 +115,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
         lifecycleScope.launch {
             val item = dao.getById(itemId) ?: run { dismiss(); return@launch }
             currentItem = item
+            episodeCounts = EpisodeCounts.fromJson(item.episodeCountsJson)
 
             binding.txtName.setText(item.name)
 
@@ -115,19 +125,19 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             selectedPlatform = VideoPlatform.fromNameOrNull(item.platform)
             renderImage()
 
-            // La imagen se puede tocar para cambiarla en los 3 tipos de contenido
+            // Tocar la imagen: si ya hay una foto real (no un badge de
+            // plataforma), primero se muestra en grande con opción de
+            // cambiarla; si no hay nada que previsualizar, va directo al
+            // selector.
             binding.imgPreviewContainer.setOnClickListener {
-                ImagePickerHelper.showImageSourceChooser(
-                    requireContext(),
-                    fragmentManager = childFragmentManager,
-                    initialQuery = item.name,
-                    onPickGallery = { requestGalleryImage() },
-                    onManualUrl = { url ->
-                        pickedImageUri = url
-                        pickedImageSource = ImageSource.WEB
-                        renderImage()
+                val uri = pickedImageUri
+                if ((pickedImageSource == ImageSource.LOCAL || pickedImageSource == ImageSource.WEB) && !uri.isNullOrBlank()) {
+                    ImagePreviewHelper.showPreview(requireContext(), uri) {
+                        openImageChooser(item.name)
                     }
-                )
+                } else {
+                    openImageChooser(item.name)
+                }
             }
 
             // Para videos, además se puede cambiar directamente la plataforma
@@ -157,20 +167,26 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 }
             }
 
-            // Configurar "candados" según el tipo
+            // Configurar "candados"
             val textColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
             val dividerColor = ContextCompat.getColor(requireContext(), R.color.glass_stroke)
 
+            // Duración: horas + minutos, se guardan como un único total de minutos.
+            val totalMinutes = item.minute.coerceIn(0, 5999)
+            binding.pickerHour.minValue = 0
+            binding.pickerHour.maxValue = 99
+            binding.pickerHour.value = totalMinutes / 60
+            binding.pickerHour.wrapSelectorWheel = false
+            NumberPickerStyler.style(binding.pickerHour, textColor, dividerColor)
+
             binding.pickerMinute.minValue = 0
-            binding.pickerMinute.maxValue = 999
-            binding.pickerMinute.value = item.minute.coerceIn(0, 999)
+            binding.pickerMinute.maxValue = 59
+            binding.pickerMinute.value = totalMinutes % 60
             binding.pickerMinute.wrapSelectorWheel = false
             NumberPickerStyler.style(binding.pickerMinute, textColor, dividerColor)
 
             if (item.typeEnum == ContentType.SERIE) {
-                binding.columnSeason.visibility = View.VISIBLE
-                binding.columnEpisode.visibility = View.VISIBLE
-                binding.dividerSeasonEpisode.visibility = View.VISIBLE
+                binding.rowSeasonEpisode.visibility = View.VISIBLE
                 binding.dividerEpisodeMinute.visibility = View.VISIBLE
 
                 binding.pickerSeason.minValue = 0
@@ -180,10 +196,15 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 NumberPickerStyler.style(binding.pickerSeason, textColor, dividerColor)
 
                 binding.pickerEpisode.minValue = 0
-                binding.pickerEpisode.maxValue = 999
-                binding.pickerEpisode.value = item.episode.coerceIn(0, 999)
                 binding.pickerEpisode.wrapSelectorWheel = false
                 NumberPickerStyler.style(binding.pickerEpisode, textColor, dividerColor)
+                applyEpisodeLimitFor(binding.pickerSeason.value, initialValue = item.episode)
+
+                // Al cambiar la temporada, recalculamos al toque el máximo de
+                // capítulo permitido según lo que esa temporada tiene de verdad.
+                binding.pickerSeason.setOnValueChangedListener { _, _, newSeason ->
+                    applyEpisodeLimitFor(newSeason, initialValue = null)
+                }
             }
 
             binding.btnCancel.setOnClickListener { dismiss() }
@@ -203,24 +224,104 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                     return@setOnClickListener
                 }
 
-                val updated = item.copy(
-                    name = newName,
-                    season = if (item.typeEnum == ContentType.SERIE) binding.pickerSeason.value else item.season,
-                    episode = if (item.typeEnum == ContentType.SERIE) binding.pickerEpisode.value else item.episode,
-                    minute = binding.pickerMinute.value,
-                    imageUri = pickedImageUri,
-                    imageSource = pickedImageSource.name,
-                    platform = if (item.typeEnum == ContentType.VIDEO) selectedPlatform?.name else item.platform,
-                    isPinnedToWidget = currentItem?.isPinnedToWidget ?: item.isPinnedToWidget,
-                    updatedAt = System.currentTimeMillis()
-                )
+                binding.btnUpdate.isEnabled = false
+
                 lifecycleScope.launch {
+                    var tvMazeId = item.tvMazeId
+                    var remoteSeason = item.remoteSeason
+                    var remoteEpisode = item.remoteEpisode
+                    var episodeCountsJson = item.episodeCountsJson
+
+                    // Si la serie NO estaba vinculada a TVmaze y le cambiaron
+                    // el nombre, probamos vincularla de nuevo con el nombre
+                    // corregido. Si encuentra algo y todavía no hay imagen
+                    // elegida a mano, usamos el póster que trae TVmaze.
+                    val shouldRelink = item.typeEnum == ContentType.SERIE &&
+                        item.tvMazeId == null && newName != item.name
+
+                    if (shouldRelink) {
+                        binding.btnUpdate.text = getString(R.string.checking_updates)
+                        val match = TvMazeApi.searchShow(newName)
+                        if (match != null) {
+                            tvMazeId = match.id
+
+                            if (pickedImageSource == ImageSource.NONE && !match.imageUrl.isNullOrBlank()) {
+                                pickedImageUri = match.imageUrl
+                                pickedImageSource = ImageSource.WEB
+                            }
+
+                            val latest = TvMazeApi.latestAiredEpisode(match.id)
+                            if (latest != null) {
+                                remoteSeason = latest.season
+                                remoteEpisode = latest.number
+                            }
+
+                            val counts = TvMazeApi.episodesBySeason(match.id)
+                            if (counts != null) episodeCountsJson = EpisodeCounts.toJson(counts)
+
+                            if (isAdded) {
+                                Toast.makeText(requireContext(), getString(R.string.tvmaze_linked), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+
+                    val updated = item.copy(
+                        name = newName,
+                        season = if (item.typeEnum == ContentType.SERIE) binding.pickerSeason.value else item.season,
+                        episode = if (item.typeEnum == ContentType.SERIE) binding.pickerEpisode.value else item.episode,
+                        minute = binding.pickerHour.value * 60 + binding.pickerMinute.value,
+                        imageUri = pickedImageUri,
+                        imageSource = pickedImageSource.name,
+                        platform = if (item.typeEnum == ContentType.VIDEO) selectedPlatform?.name else item.platform,
+                        isPinnedToWidget = currentItem?.isPinnedToWidget ?: item.isPinnedToWidget,
+                        tvMazeId = tvMazeId,
+                        remoteSeason = remoteSeason,
+                        remoteEpisode = remoteEpisode,
+                        episodeCountsJson = episodeCountsJson,
+                        updatedAt = System.currentTimeMillis()
+                    )
+
                     dao.update(updated)
                     if (item.typeEnum == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
                     dismiss()
                 }
             }
         }
+    }
+
+    /**
+     * Ajusta el máximo del candado de capítulo según la temporada elegida.
+     * Si no tenemos datos de esa temporada (serie no vinculada, o TVmaze
+     * todavía no la tiene cargada), no restringe nada.
+     */
+    private fun applyEpisodeLimitFor(season: Int, initialValue: Int?) {
+        val maxForSeason = episodeCounts[season]
+        val newMax = maxForSeason ?: 999
+        val desiredValue = initialValue ?: binding.pickerEpisode.value
+        val clampedValue = desiredValue.coerceIn(0, newMax)
+
+        binding.pickerEpisode.maxValue = newMax
+        binding.pickerEpisode.value = clampedValue
+
+        binding.txtEpisodeLabel.text = if (maxForSeason != null) {
+            getString(R.string.field_episode_of, maxForSeason)
+        } else {
+            getString(R.string.field_episode)
+        }
+    }
+
+    private fun openImageChooser(itemName: String) {
+        ImagePickerHelper.showImageSourceChooser(
+            requireContext(),
+            fragmentManager = childFragmentManager,
+            initialQuery = itemName,
+            onPickGallery = { requestGalleryImage() },
+            onManualUrl = { url ->
+                pickedImageUri = url
+                pickedImageSource = ImageSource.WEB
+                renderImage()
+            }
+        )
     }
 
     private fun requestGalleryImage() {

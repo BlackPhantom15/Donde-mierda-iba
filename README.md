@@ -18,13 +18,16 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Series, películas y videos por separado, cada uno con su propia lógica (temporada + capítulo para series, minuto para películas y videos).
 - Vista en lista o en cuadrícula, con buscador en tiempo real.
 - Edición rápida de nombre, imagen y progreso sin tener que borrar y recargar.
-- Selector de progreso estilo "candado de valija" (`NumberPicker`) para subir o bajar temporada, capítulo o minuto de forma intuitiva.
+- Vista previa en grande antes de cambiar una imagen ya elegida (no salta directo al selector).
+- Selector de progreso estilo "candado de valija" (`NumberPicker`) para subir o bajar temporada, capítulo o duración de forma intuitiva — la duración se edita en horas + minutos (mucho más cómodo para películas largas que scrollear un solo contador hasta 150).
 
 **Integración con TVmaze**
 - Al cargar una serie, se busca automáticamente en la [API pública de TVmaze](https://www.tvmaze.com/api) (gratis, sin API key).
-- Chequeo periódico en segundo plano (`WorkManager`, cada 12 h, solo con conexión) que avisa por notificación local cuando sale una temporada o capítulo nuevo *ya emitido*.
+- El candado de capítulo no deja poner más de los que esa temporada realmente tiene, según TVmaze (si la temporada todavía está al aire, el límite es "lo que salió hasta ahora", porque ni TVmaze sabe el total final todavía).
+- Chequeo periódico en segundo plano (`WorkManager`, cada 6 h, solo con conexión) que avisa por notificación local cuando sale una temporada o capítulo nuevo *ya emitido*. Al iniciar la app también se sugiere (una sola vez) excluirla del ahorro de batería del sistema, porque varios fabricantes (Xiaomi, Samsung, Huawei, etc.) retrasan bastante las tareas en segundo plano de apps que no se abrieron hace rato — sin eso, WorkManager puede tardar en avisar aunque el intervalo configurado sea corto.
 - Cada serie vinculada muestra chiquito hasta dónde llegó lo emitido, para saber de un vistazo si te quedaste atrás.
 - Si al cargar una serie no elegís ninguna imagen, se usa automáticamente el póster oficial que trae TVmaze (si vos elegís una foto propia, esa tiene prioridad siempre).
+- Si una serie no se pudo vincular al cargarla (nombre mal escrito, sin internet en ese momento, etc.) y después le corregís el nombre desde el editor, la app vuelve a intentar vincularla con TVmaze automáticamente — y si lo logra, también trae el póster si todavía no tenías uno elegido.
 - Las series se ordenan mostrando primero las que tenés atrasadas respecto a lo último emitido, y después las que ya están al día — así lo que necesita tu atención queda arriba.
 
 **Widget de pantalla de inicio — "Viendo ahora"**
@@ -94,6 +97,9 @@ app/src/main/java/com/blackphantom/dondemierdaiba/
 - [ ] Buscador de imágenes por web dentro de la app (desactivado por ahora — la primera implementación con Openverse tenía un límite de 5 búsquedas por hora que lo hacía inutilizable; evaluando alternativas).
 - [x] Vincular automáticamente el póster de TVmaze cuando no se elige una imagen propia al cargar una serie.
 - [x] Ordenar series por progreso pendiente (las atrasadas primero, las que ya están al día después).
+- [x] Limitar el candado de capítulo al máximo real de cada temporada, según TVmaze.
+- [x] Selector de horas además de minutos (más cómodo para películas largas).
+- [x] Chequeo periódico más frecuente (6 h) + aviso para excluir la app del ahorro de batería, para que las notificaciones de capítulos nuevos lleguen sin tener que abrir la app.
 - [ ] Selector de posters oficiales de películas vía TMDb (requeriría API key propia — TVmaze solo cubre series).
 - [ ] Soporte para más de un idioma.
 - [ ] Tests instrumentados para DAO y Workers.
@@ -106,6 +112,12 @@ Repositorio personal. Si querés reutilizar código o adaptarlo a tu propio proy
 
 - Datos de series: [TVmaze API](https://www.tvmaze.com/api).
 - Iconografía e ilustraciones: creadas desde cero para este proyecto, sin assets de terceros.
+
+## Base de datos
+
+La base va en su versión 4 (Room). Todos los saltos desde la v2 en adelante
+tienen migración real (`ALTER TABLE`), así que actualizar la app no borra lo
+que ya tenías cargado.
 
 ---
 

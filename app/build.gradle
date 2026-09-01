@@ -61,12 +61,18 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
 
     // Persistencia local
-    implementation 'androidx.room:room-runtime:2.4.3'
-    implementation 'androidx.room:room-ktx:2.4.3'
-    kapt 'androidx.room:room-compiler:2.4.3'
+    // Persistencia local. 2.6.1 (no 2.4.3): la 2.4.3 tiene un bug conocido de
+    // kapt con JDK 17 (el que trae Android Studio por defecto hace tiempo) que
+    // genera "cannot override onCreate... weaker access privileges" en
+    // AppDatabase_Impl. Sigue soportando minSdk 19 sin problema.
+    implementation 'androidx.room:room-runtime:2.6.1'
+    implementation 'androidx.room:room-ktx:2.6.1'
+    kapt 'androidx.room:room-compiler:2.6.1'
 
-    // Chequeo periódico en segundo plano (notificaciones de nuevos capítulos)
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    // Chequeo periódico en segundo plano (notificaciones de nuevos capítulos).
+    // 2.8.1 (no 2.7.1) porque necesitamos ExistingPeriodicWorkPolicy.UPDATE,
+    // que se agregó en la 2.8.0. Sigue soportando minSdk 19 sin problema.
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
 
     // Carga de imágenes (galería / web), liviano
     implementation 'com.github.bumptech.glide:glide:4.13.2'

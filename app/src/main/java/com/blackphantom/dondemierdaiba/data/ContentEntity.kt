@@ -29,6 +29,11 @@ data class ContentEntity(
     // aparecen en el widget de pantalla de inicio. Solo aplica a SERIE.
     val isPinnedToWidget: Boolean = false,
 
+    // Cantidad de capítulos por temporada según TVmaze, como JSON
+    // ("{"1":8,"2":10}"). Se usa para limitar el candado de capítulo al
+    // máximo real de cada temporada. Null si todavía no se pudo consultar.
+    val episodeCountsJson: String? = null,
+
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {

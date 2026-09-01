@@ -118,17 +118,38 @@
 
         </LinearLayout>
 
-        <EditText
-            android:id="@+id/edtMinute"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_glass_input"
-            android:hint="@string/field_minute"
-            android:inputType="number"
-            android:maxLines="1"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_muted" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edtHours"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_glass_input"
+                android:hint="@string/field_hours"
+                android:inputType="number"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_muted" />
+
+            <EditText
+                android:id="@+id/edtMinute"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_glass_input"
+                android:hint="@string/field_minute"
+                android:inputType="number"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_muted" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
