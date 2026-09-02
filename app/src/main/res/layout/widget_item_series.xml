@@ -15,6 +15,7 @@
         android:id="@+id/widgetRowContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -22,6 +23,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/widget_thumb_ring"
+            android:clipChildren="false"
             android:padding="2dp">
 
             <ImageView
@@ -36,6 +38,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/widget_dot" />
+
+            <ImageView
+                android:id="@+id/widgetStatusBadge"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="-3dp"
+                android:layout_marginEnd="-3dp"
+                android:visibility="gone" />
 
         </FrameLayout>
 

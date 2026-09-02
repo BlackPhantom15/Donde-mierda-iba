@@ -54,7 +54,22 @@ class SeriesWidgetFactory(private val context: Context) : RemoteViewsService.Rem
             R.id.widgetItemMeta,
             "T${item.season} · C${String.format("%02d", item.episode)} · ${DurationFormatter.format(item.minute)}"
         )
-        rv.setTextColor(R.id.widgetItemMeta, metaColorFor(item))
+        val status = statusFor(item)
+        rv.setTextColor(R.id.widgetItemMeta, colorFor(status))
+
+        when (status) {
+            SeriesStatus.UP_TO_DATE -> {
+                rv.setImageViewResource(R.id.widgetStatusBadge, R.drawable.widget_status_ok)
+                rv.setViewVisibility(R.id.widgetStatusBadge, android.view.View.VISIBLE)
+            }
+            SeriesStatus.BEHIND -> {
+                rv.setImageViewResource(R.id.widgetStatusBadge, R.drawable.widget_status_behind)
+                rv.setViewVisibility(R.id.widgetStatusBadge, android.view.View.VISIBLE)
+            }
+            SeriesStatus.UNKNOWN -> {
+                rv.setViewVisibility(R.id.widgetStatusBadge, android.view.View.GONE)
+            }
+        }
 
         // Miniatura real si el usuario cargó una (galería o web); si no,
         // un punto de color generado a partir del id, para que cada fila
@@ -89,16 +104,24 @@ class SeriesWidgetFactory(private val context: Context) : RemoteViewsService.Rem
         putExtra(SeriesWidgetProvider.EXTRA_ITEM_ID, itemId)
     }
 
-    /** Mismo criterio de color que usa la lista principal de la app. */
-    private fun metaColorFor(item: ContentEntity): Int {
+    /** Mismo criterio que usa la lista principal de la app para saber si está al día. */
+    private fun statusFor(item: ContentEntity): SeriesStatus {
         val hasRemoteInfo = item.tvMazeId != null && item.remoteSeason > 0
-        if (!hasRemoteInfo) return Color.parseColor("#B6B0D6") // gris/lila neutro
+        if (!hasRemoteInfo) return SeriesStatus.UNKNOWN
 
         val isUpToDate = item.season > item.remoteSeason ||
             (item.season == item.remoteSeason && item.episode >= item.remoteEpisode)
 
-        return if (isUpToDate) Color.parseColor("#22D3EE") else Color.parseColor("#F472B6")
+        return if (isUpToDate) SeriesStatus.UP_TO_DATE else SeriesStatus.BEHIND
     }
+
+    private fun colorFor(status: SeriesStatus): Int = when (status) {
+        SeriesStatus.UP_TO_DATE -> Color.parseColor("#22D3EE")
+        SeriesStatus.BEHIND -> Color.parseColor("#F472B6")
+        SeriesStatus.UNKNOWN -> Color.parseColor("#B6B0D6")
+    }
+
+    private enum class SeriesStatus { UP_TO_DATE, BEHIND, UNKNOWN }
 
     /**
      * Carga la miniatura de forma síncrona y bloqueante (estamos en el hilo

@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.blackphantom.dondemierdaiba.R
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 object ImagePreviewHelper {
@@ -26,8 +26,18 @@ object ImagePreviewHelper {
         val view: View = LayoutInflater.from(context).inflate(R.layout.dialog_image_preview, null)
         dialog.setContentView(view)
         dialog.setOnShowListener {
-            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-                ?.setBackgroundResource(android.R.color.transparent)
+            val sheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            sheet?.setBackgroundResource(android.R.color.transparent)
+            if (sheet != null) {
+                // Sin esto, el sheet arranca "colapsado" mostrando solo una
+                // porción del contenido (como un peek), y la imagen se ve
+                // cortada hasta que el usuario lo arrastra hacia arriba a
+                // mano. Lo forzamos a abrir siempre expandido del todo.
+                BottomSheetBehavior.from(sheet).apply {
+                    state = BottomSheetBehavior.STATE_EXPANDED
+                    skipCollapsed = true
+                }
+            }
         }
 
         val imgFull = view.findViewById<ImageView>(R.id.imgFullPreview)
@@ -35,7 +45,12 @@ object ImagePreviewHelper {
             .load(imageUri)
             .placeholder(R.drawable.ic_image_placeholder)
             .error(R.drawable.ic_image_placeholder)
-            .transform(CenterCrop(), RoundedCorners(28))
+            // Tamaño de destino fijo: evita que Glide dependa de medir el
+            // ImageView (que dentro de un BottomSheetDialog recién creado
+            // puede no tener todavía un ancho/alto definitivo) y termine
+            // pidiendo un bitmap más chico de lo que después se muestra.
+            .override(1080, 1080)
+            .transform(RoundedCorners(28))
             .into(imgFull)
 
         view.findViewById<View>(R.id.btnClosePreview).setOnClickListener { dialog.dismiss() }

@@ -189,11 +189,17 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 binding.rowSeasonEpisode.visibility = View.VISIBLE
                 binding.dividerEpisodeMinute.visibility = View.VISIBLE
 
+                val maxSeason = episodeCounts.keys.maxOrNull() ?: 200
                 binding.pickerSeason.minValue = 0
-                binding.pickerSeason.maxValue = 200
-                binding.pickerSeason.value = item.season.coerceIn(0, 200)
+                binding.pickerSeason.maxValue = maxSeason
+                binding.pickerSeason.value = item.season.coerceIn(0, maxSeason)
                 binding.pickerSeason.wrapSelectorWheel = false
                 NumberPickerStyler.style(binding.pickerSeason, textColor, dividerColor)
+                binding.txtSeasonLabel.text = if (episodeCounts.isNotEmpty()) {
+                    getString(R.string.field_season_of, maxSeason)
+                } else {
+                    getString(R.string.field_season)
+                }
 
                 binding.pickerEpisode.minValue = 0
                 binding.pickerEpisode.wrapSelectorWheel = false

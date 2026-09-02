@@ -200,8 +200,8 @@ class AddContentDialog : BottomSheetDialogFragment() {
         val hours = binding.edtHours.text.toString().trim().toIntOrNull() ?: 0
         val minutesOnly = binding.edtMinute.text.toString().trim().toIntOrNull() ?: 0
         val minute = hours * 60 + minutesOnly
-        val season = binding.edtSeason.text.toString().trim().toIntOrNull() ?: 0
-        val episode = binding.edtEpisode.text.toString().trim().toIntOrNull() ?: 0
+        var season = binding.edtSeason.text.toString().trim().toIntOrNull() ?: 0
+        var episode = binding.edtEpisode.text.toString().trim().toIntOrNull() ?: 0
 
         binding.btnSave.isEnabled = false
 
@@ -214,6 +214,7 @@ class AddContentDialog : BottomSheetDialogFragment() {
             var remoteSeason = 0
             var remoteEpisode = 0
             var episodeCountsJson: String? = null
+            var wasProgressAdjusted = false
 
             if (type == ContentType.SERIE) {
                 binding.btnSave.text = getString(R.string.checking_updates)
@@ -236,7 +237,24 @@ class AddContentDialog : BottomSheetDialogFragment() {
                     }
 
                     val counts = TvMazeApi.episodesBySeason(match.id)
-                    if (counts != null) episodeCountsJson = EpisodeCounts.toJson(counts)
+                    if (counts != null) {
+                        episodeCountsJson = EpisodeCounts.toJson(counts)
+
+                        // Si puso una temporada o capítulo que esa serie no tiene
+                        // (ej: T3C23 en una serie que solo llegó a T1C08), lo
+                        // corregimos al máximo real en vez de dejarlo guardado mal
+                        // o directamente rechazar la carga.
+                        val maxSeason = counts.keys.maxOrNull()
+                        if (maxSeason != null && season > maxSeason) {
+                            season = maxSeason
+                            wasProgressAdjusted = true
+                        }
+                        val maxEpisodeForSeason = counts[season]
+                        if (maxEpisodeForSeason != null && episode > maxEpisodeForSeason) {
+                            episode = maxEpisodeForSeason
+                            wasProgressAdjusted = true
+                        }
+                    }
                 }
             }
 
@@ -259,8 +277,12 @@ class AddContentDialog : BottomSheetDialogFragment() {
             if (type == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
 
             if (type == ContentType.SERIE && isAdded) {
-                val msgRes = if (tvMazeId != null) R.string.tvmaze_linked else R.string.tvmaze_not_found
-                Toast.makeText(requireContext(), getString(msgRes), Toast.LENGTH_LONG).show()
+                val message = when {
+                    wasProgressAdjusted -> getString(R.string.progress_adjusted, season, episode)
+                    tvMazeId != null -> getString(R.string.tvmaze_linked)
+                    else -> getString(R.string.tvmaze_not_found)
+                }
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
             }
 
             dismiss()

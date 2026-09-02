@@ -12,19 +12,16 @@
         android:layout_gravity="center_horizontal"
         android:background="#40FFFFFF" />
 
-    <FrameLayout
+    <ImageView
+        android:id="@+id/imgFullPreview"
         android:layout_width="match_parent"
-        android:layout_height="260dp"
-        android:layout_marginTop="18dp">
-
-        <ImageView
-            android:id="@+id/imgFullPreview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_glass_input"
-            android:scaleType="centerCrop" />
-
-    </FrameLayout>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/bg_glass_input"
+        android:maxHeight="420dp"
+        android:minHeight="180dp"
+        android:scaleType="fitCenter" />
 
     <LinearLayout
         android:layout_width="match_parent"

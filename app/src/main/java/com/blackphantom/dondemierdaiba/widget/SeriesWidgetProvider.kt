@@ -78,9 +78,16 @@ class SeriesWidgetProvider : AppWidgetProvider() {
                         val dao = AppDatabase.getInstance(context).contentDao()
                         val item = dao.getByIdSync(itemId)
                         if (item != null) {
-                            val newSeason = (item.season + 1).coerceIn(0, 200)
-                            dao.updateSeasonSync(itemId, newSeason, System.currentTimeMillis())
-                            requestRefresh(context)
+                            val counts = EpisodeCounts.fromJson(item.episodeCountsJson)
+                            val maxSeason = counts.keys.maxOrNull() ?: 200
+
+                            if (item.season >= maxSeason && counts.isNotEmpty()) {
+                                showToastOnMainThread(context, R.string.widget_no_more_seasons)
+                            } else {
+                                val newSeason = (item.season + 1).coerceIn(0, maxSeason)
+                                dao.updateSeasonSync(itemId, newSeason, System.currentTimeMillis())
+                                requestRefresh(context)
+                            }
                         }
                     } finally {
                         pending.finish()

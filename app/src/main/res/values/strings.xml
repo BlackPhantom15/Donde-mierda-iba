@@ -20,6 +20,7 @@
     <string name="field_season">Temporada</string>
     <string name="field_episode">Capítulo</string>
     <string name="field_episode_of">Capítulo (%1$d)</string>
+    <string name="field_season_of">Temporada (%1$d)</string>
     <string name="field_minute">Minuto</string>
     <string name="field_hours">Hora</string>
     <string name="field_image">Imagen</string>
@@ -54,6 +55,7 @@
 
     <string name="tvmaze_linked">Serie vinculada con TVmaze ✅ vas a recibir avisos de capítulos nuevos</string>
     <string name="tvmaze_not_found">No se encontró en TVmaze, se guardó igual pero sin avisos automáticos</string>
+    <string name="progress_adjusted">⚠️ Esa serie no llega hasta ahí — se ajustó tu progreso a T%1$d · C%2$d, lo máximo que tiene según TVmaze</string>
     <string name="remote_latest">Último: T%1$d · C%2$d</string>
     <string name="remote_up_to_date">✅ Estás al día</string>
     <string name="checking_updates">Buscando novedades…</string>
@@ -93,4 +95,5 @@
     <string name="widget_stepper_episode_plus">C+</string>
     <string name="widget_stepper_minute">+5m</string>
     <string name="widget_season_complete">Ya llegaste al último capítulo conocido de esta temporada</string>
+    <string name="widget_no_more_seasons">Todavía no hay una temporada siguiente conocida</string>
 </resources>
