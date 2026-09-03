@@ -48,6 +48,7 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Diseño oscuro con estética *glassmorphism* (tarjetas translúcidas, bordes sutiles) y botones estilo iOS.
 - Fondo animado con iconografía genérica (nada de logos con copyright).
 - Splash screen con logo y animación propios.
+- Tour guiado de bienvenida para usuarios nuevos: 7 pasos con un efecto "spotlight" (pantalla atenuada, agujero recortado sobre el botón que se está explicando) y globos de texto con un poco de humor. Hecho a mano con `Canvas`, sin ninguna librería externa. Se muestra una sola vez, pero se puede volver a ver cuando quieras desde el menú de los 3 puntitos (⋮) → "Ver el tour de nuevo".
 
 ## Capturas
 
@@ -85,7 +86,7 @@ No requiere ninguna API key: TVmaze es de acceso libre.
 ```
 app/src/main/java/com/blackphantom/dondemierdaiba/
 ├── data/        # Entidades y DAO de Room, base de datos
-├── ui/          # Activities y Fragments principales
+├── ui/          # Activities, Fragments y el tour guiado (OnboardingController)
 ├── dialogs/     # Modales (agregar, editar progreso, elegir imagen)
 ├── adapter/     # Adapters de RecyclerView
 ├── network/     # Clientes HTTP livianos (TVmaze)

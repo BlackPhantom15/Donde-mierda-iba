@@ -67,9 +67,29 @@ class MainActivity : AppCompatActivity() {
         setupBackupMenu()
         updateFabLabel()
         requestNotificationPermissionIfNeeded()
-        requestBatteryOptimizationExemptionIfNeeded()
+        val showedBatteryDialog = requestBatteryOptimizationExemptionIfNeeded()
 
         handleIncomingIntent(intent)
+
+        // Si en esta misma apertura también salió el diálogo de batería, no
+        // arrancamos el tour encima para no pisarnos con dos cosas a la vez.
+        // Se muestra solo en la próxima apertura.
+        if (!Prefs.wasOnboardingShown(this) && !showedBatteryDialog) {
+            binding.root.post { startOnboarding() }
+        }
+    }
+
+    private fun startOnboarding() {
+        val targets = OnboardingController.Targets(
+            tabLayout = { binding.tabLayout },
+            searchBar = { binding.searchContainer },
+            toggleViewButton = { binding.btnToggleView },
+            checkUpdatesButton = { binding.btnCheckUpdates },
+            backupMenuButton = { binding.btnBackupMenu },
+            addButton = { binding.btnAdd },
+            goToFirstTab = { binding.tabLayout.getTabAt(0)?.select() }
+        )
+        OnboardingController(this, binding.root, targets).start()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -124,11 +144,11 @@ class MainActivity : AppCompatActivity() {
      * Se pregunta una sola vez (no se vuelve a molestar si el usuario dice
      * "ahora no"), y no hace nada si el dispositivo ya la tiene excluida.
      */
-    private fun requestBatteryOptimizationExemptionIfNeeded() {
-        if (Prefs.wasBatteryPromptShown(this)) return
+    private fun requestBatteryOptimizationExemptionIfNeeded(): Boolean {
+        if (Prefs.wasBatteryPromptShown(this)) return false
 
-        val powerManager = getSystemService(POWER_SERVICE) as? PowerManager ?: return
-        if (powerManager.isIgnoringBatteryOptimizations(packageName)) return
+        val powerManager = getSystemService(POWER_SERVICE) as? PowerManager ?: return false
+        if (powerManager.isIgnoringBatteryOptimizations(packageName)) return false
 
         Prefs.setBatteryPromptShown(this)
 
@@ -147,6 +167,8 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton(R.string.battery_dialog_not_now, null)
             .show()
+
+        return true
     }
 
     private fun setupCheckUpdates() {
@@ -180,6 +202,10 @@ class MainActivity : AppCompatActivity() {
             // "*/*" en vez de "application/json": muchos gestores de archivos y
             // apps de chat marcan los .json con un mime type genérico distinto.
             importFileLauncher.launch("*/*")
+        }
+        view.findViewById<View>(R.id.btnReplayTutorial).setOnClickListener {
+            dialog.dismiss()
+            startOnboarding()
         }
 
         dialog.show()

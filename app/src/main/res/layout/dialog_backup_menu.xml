@@ -49,4 +49,15 @@
         android:gravity="center_vertical|start"
         android:text="@string/backup_import_action" />
 
+    <Button
+        android:id="@+id/btnReplayTutorial"
+        style="@style/Widget.DMI.AppleButton.Ghost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:drawableStart="@drawable/ic_help"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/tutorial_replay" />
+
 </LinearLayout>

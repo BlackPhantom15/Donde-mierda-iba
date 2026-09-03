@@ -96,4 +96,31 @@
     <string name="widget_stepper_minute">+5m</string>
     <string name="widget_season_complete">Ya llegaste al último capítulo conocido de esta temporada</string>
     <string name="widget_no_more_seasons">Todavía no hay una temporada siguiente conocida</string>
+
+    <string name="tutorial_skip">Saltear</string>
+    <string name="tutorial_next">Siguiente</string>
+    <string name="tutorial_done">Entendido, ¡vamos!</string>
+    <string name="tutorial_step_count">PASO %1$d DE %2$d</string>
+    <string name="tutorial_replay">Ver el tour de nuevo</string>
+
+    <string name="tutorial_welcome_title">¡Che, bienvenido a Dónde Mierda Iba! 👻</string>
+    <string name="tutorial_welcome_body">Date una vuelta rápida antes de perderte en la app (más de lo que ya estabas con tus series). Son 6 pasitos, tardás menos que en saltear los créditos de un capítulo.</string>
+
+    <string name="tutorial_tabs_title">Acá separás el bardo</string>
+    <string name="tutorial_tabs_body">Series, Películas y Videos, cada uno en su cajón. Nada de tener todo mezclado como en un placard de soltero.</string>
+
+    <string name="tutorial_search_title">El buscador</string>
+    <string name="tutorial_search_body">Escribís el nombre y listo. Perfecto para cuando te acordás de "esa que tenía al tipo ese" pero no el título.</string>
+
+    <string name="tutorial_toggle_title">Lista o cuadrícula</string>
+    <string name="tutorial_toggle_body">Tocá acá para cambiar la vista. No te cambia la vida ni el progreso de nada, pero se siente lindo tener el control de algo.</string>
+
+    <string name="tutorial_check_updates_title">Buscar novedades</string>
+    <string name="tutorial_check_updates_body">La app chequea sola cada 6 horas si salió algo nuevo, pero si sos de los ansiosos, tocá acá y forzás el chequeo ya mismo. No juzgamos.</string>
+
+    <string name="tutorial_backup_title">Tus listas, portables</string>
+    <string name="tutorial_backup_body">Desde acá exportás todo a un archivo para pasarlo a otro celular o guardarlo de backup. Nada de nubes ajenas ni logins raros, como prometimos.</string>
+
+    <string name="tutorial_add_title">El botón más importante</string>
+    <string name="tutorial_add_body">Acá cargás lo que estés viendo. Y con esto ya sabés usar la app entera — ahora andá a anotar todo lo que tenés pendiente, que seguro es un montón.</string>
 </resources>
