@@ -24,7 +24,7 @@ class TutorialOverlayView(context: Context) : FrameLayout(context) {
     private val cornerRadiusPx = 18f * resources.displayMetrics.density
 
     private val scrimPaint = Paint().apply {
-        color = Color.parseColor("#D40B0B14")
+        color = Color.parseColor("#D41E1C22")
         isAntiAlias = true
     }
 
@@ -37,7 +37,7 @@ class TutorialOverlayView(context: Context) : FrameLayout(context) {
         isAntiAlias = true
         style = Paint.Style.STROKE
         strokeWidth = 2.2f * resources.displayMetrics.density
-        color = Color.parseColor("#8B5CF6")
+        color = Color.parseColor("#E8792E")
     }
 
     init {

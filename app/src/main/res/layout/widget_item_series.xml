@@ -64,7 +64,7 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:textColor="#F8F7FF"
+                android:textColor="#F4E9DF"
                 android:textSize="13.5sp"
                 tools:text="Breaking Bad" />
 
@@ -74,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="#B6B0D6"
+                android:textColor="#B7A99C"
                 android:textSize="11sp"
                 tools:text="T2 · C05 · 34 min" />
 
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="@string/widget_stepper_season"
-                android:textColor="#DDD6FE"
+                android:textColor="#F3A868"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 
@@ -158,7 +158,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="@string/widget_stepper_minute"
-                android:textColor="#A5F3FC"
+                android:textColor="#F4B740"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 

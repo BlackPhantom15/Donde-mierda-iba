@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Sombra: una silueta oscura corrida hacia abajo -->
+    <!-- sombra oscura, corrida hacia abajo -->
     <item android:top="3dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
-            <solid android:color="#2E000000" />
+            <solid android:color="#33000000" />
         </shape>
     </item>
-    <!-- Cuerpo de vidrio -->
+    <!-- cuerpo -->
     <item android:bottom="3dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
@@ -19,11 +19,11 @@
                 android:endColor="#0DFFFFFF" />
         </shape>
     </item>
-    <!-- Borde con brillo -->
+    <!-- borde con brillo -->
     <item android:bottom="3dp">
         <shape android:shape="rectangle">
             <corners android:radius="20dp" />
-            <stroke android:width="1dp" android:color="#3AFFFFFF" />
+            <stroke android:width="1dp" android:color="#33FFFFFF" />
         </shape>
     </item>
 </layer-list>

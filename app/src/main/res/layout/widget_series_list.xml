@@ -28,7 +28,7 @@
             android:fontFamily="sans-serif-medium"
             android:letterSpacing="0.01"
             android:text="@string/widget_title"
-            android:textColor="#F8F7FF"
+            android:textColor="#F4E9DF"
             android:textSize="14.5sp" />
 
         <ImageView
@@ -63,7 +63,7 @@
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:text="@string/widget_empty"
-            android:textColor="#B6B0D6"
+            android:textColor="#B7A99C"
             android:textSize="12sp" />
 
     </FrameLayout>

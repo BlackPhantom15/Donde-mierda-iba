@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/glass_fill" />
-    <corners android:radius="22dp" />
-    <stroke android:width="1dp" android:color="@color/glass_stroke" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- sombra oscura (inferior-derecha) -->
+    <item android:top="4dp" android:left="4dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="22dp" />
+            <solid android:color="@color/neu_shadow_dark" />
+        </shape>
+    </item>
+    <!-- sombra clara (superior-izquierda), simula el reflejo de luz -->
+    <item android:bottom="4dp" android:right="4dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="22dp" />
+            <solid android:color="@color/neu_shadow_light" />
+        </shape>
+    </item>
+    <!-- cara principal -->
+    <item android:top="2dp" android:left="2dp" android:right="2dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="21dp" />
+            <gradient android:type="linear" android:angle="135" android:startColor="@color/neu_base_hi" android:endColor="@color/neu_base" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#6D28D9" />
-    <corners android:radius="26dp" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- estado hundido: la sombra oscura ahora arriba-izquierda -->
+    <item android:bottom="3dp" android:right="3dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="26dp" />
+            <solid android:color="@color/neu_shadow_dark" />
+        </shape>
+    </item>
+    <item android:top="3dp" android:left="3dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="26dp" />
+            <solid android:color="@color/neu_shadow_light" />
+        </shape>
+    </item>
+    <item android:top="2dp" android:left="2dp" android:right="2dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="25dp" />
+            <gradient android:type="linear" android:angle="115" android:startColor="@color/accent_orange_dark" android:endColor="@color/accent_orange_dark" />
+        </shape>
+    </item>
+</layer-list>

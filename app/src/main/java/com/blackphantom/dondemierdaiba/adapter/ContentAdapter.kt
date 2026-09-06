@@ -72,7 +72,7 @@ class ContentAdapter(
                 platformDot?.visibility = android.view.View.VISIBLE
                 platformDot?.background = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
-                    setColor(Color.parseColor(platform?.colorHex ?: "#8B5CF6"))
+                    setColor(Color.parseColor(platform?.colorHex ?: "#E8792E"))
                 }
             } else {
                 platformDot?.visibility = android.view.View.GONE
@@ -117,7 +117,7 @@ class ContentAdapter(
                 }
                 ImageSource.PRESET -> {
                     val platform = VideoPlatform.fromNameOrNull(item.imageUri)
-                    val colorHex = platform?.colorHex ?: "#8B5CF6"
+                    val colorHex = platform?.colorHex ?: "#E8792E"
                     Glide.with(itemView).clear(imgThumb)
                     imgThumb.setImageDrawable(null)
                     imgThumb.background = PlatformVisuals.glassBackground(itemView.context, colorHex)

@@ -1,20 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg_top">#0B0B14</color>
-    <color name="bg_bottom">#15122B</color>
-    <color name="glass_fill">#26FFFFFF</color>
-    <color name="glass_stroke">#40FFFFFF</color>
-    <color name="glass_fill_strong">#33FFFFFF</color>
+    <!-- ===== Paleta Neumorfismo "Dónde Mierda Iba" ===== -->
+    <!-- Fondo base (nunca negro puro) -->
+    <color name="bg_top">#1E1C22</color>
+    <color name="bg_bottom">#121115</color>
 
-    <color name="accent_violet">#8B5CF6</color>
-    <color name="accent_cyan">#22D3EE</color>
-    <color name="accent_pink">#F472B6</color>
+    <!-- Superficies neumórficas: mismo tono que el fondo, variantes para el relieve -->
+    <color name="neu_base">#201E25</color>
+    <color name="neu_base_hi">#252329</color>
+    <color name="neu_base_pressed">#191720</color>
+    <color name="neu_shadow_light">#332F38</color>
+    <color name="neu_shadow_dark">#0B0A0E</color>
 
-    <color name="text_primary">#F5F3FF</color>
-    <color name="text_secondary">#B6B0D6</color>
-    <color name="text_muted">#7B7699</color>
+    <!-- Compat: nombres antiguos usados en todo el proyecto, mismo valor que los "glass_*" -->
+    <color name="glass_fill">#201E25</color>
+    <color name="glass_stroke">#14FFFFFF</color>
+    <color name="glass_fill_strong">#2A2830</color>
 
-    <color name="danger">#FB7185</color>
+    <!-- Acentos (derivados del logo: naranja cálido + ámbar + coral) -->
+    <color name="accent_orange">#E8792E</color>
+    <color name="accent_orange_light">#F3A868</color>
+    <color name="accent_orange_dark">#B85D22</color>
+
+    <!-- Compat: nombres antiguos remapeados a la nueva paleta -->
+    <color name="accent_violet">#E8792E</color>
+    <color name="accent_cyan">#F4B740</color>
+    <color name="accent_pink">#E2492F</color>
+
+    <color name="text_primary">#F4E9DF</color>
+    <color name="text_secondary">#B7A99C</color>
+    <color name="text_muted">#7D7268</color>
+
+    <color name="danger">#E2492F</color>
 
     <color name="platform_youtube">#FF3B3B</color>
     <color name="platform_twitch">#9146FF</color>

@@ -116,9 +116,9 @@ class SeriesWidgetFactory(private val context: Context) : RemoteViewsService.Rem
     }
 
     private fun colorFor(status: SeriesStatus): Int = when (status) {
-        SeriesStatus.UP_TO_DATE -> Color.parseColor("#22D3EE")
-        SeriesStatus.BEHIND -> Color.parseColor("#F472B6")
-        SeriesStatus.UNKNOWN -> Color.parseColor("#B6B0D6")
+        SeriesStatus.UP_TO_DATE -> Color.parseColor("#F4B740")
+        SeriesStatus.BEHIND -> Color.parseColor("#E2492F")
+        SeriesStatus.UNKNOWN -> Color.parseColor("#B7A99C")
     }
 
     private enum class SeriesStatus { UP_TO_DATE, BEHIND, UNKNOWN }

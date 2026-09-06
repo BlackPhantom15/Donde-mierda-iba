@@ -384,7 +384,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             }
             ImageSource.PRESET -> {
                 val platform = VideoPlatform.fromNameOrNull(pickedImageUri)
-                val colorHex = platform?.colorHex ?: "#8B5CF6"
+                val colorHex = platform?.colorHex ?: "#E8792E"
                 binding.imgPreview.setImageDrawable(null)
                 binding.imgPreview.background =
                     PlatformVisuals.glassBackground(requireContext(), colorHex)
