@@ -12,6 +12,12 @@
     <color name="neu_shadow_light">#332F38</color>
     <color name="neu_shadow_dark">#0B0A0E</color>
 
+    <!-- Bisel "iluminado": para elementos naranjas, simula que la luz naranja
+         se derrama sobre el propio relieve neumórfico -->
+    <color name="neu_glow_orange">#FFC088</color>
+    <color name="neu_glow_umber">#3A1608</color>
+    <color name="neu_glow_ring">#66FFB878</color>
+
     <!-- Compat: nombres antiguos usados en todo el proyecto, mismo valor que los "glass_*" -->
     <color name="glass_fill">#201E25</color>
     <color name="glass_stroke">#14FFFFFF</color>

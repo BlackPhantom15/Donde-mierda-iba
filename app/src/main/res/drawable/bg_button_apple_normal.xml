@@ -4,14 +4,14 @@
     <item android:top="4dp" android:left="4dp">
         <shape android:shape="rectangle">
             <corners android:radius="26dp" />
-            <solid android:color="@color/neu_shadow_dark" />
+            <solid android:color="@color/neu_glow_umber" />
         </shape>
     </item>
     <!-- sombra clara (superior-izquierda), simula el reflejo de luz -->
     <item android:bottom="4dp" android:right="4dp">
         <shape android:shape="rectangle">
             <corners android:radius="26dp" />
-            <solid android:color="@color/neu_shadow_light" />
+            <solid android:color="@color/neu_glow_orange" />
         </shape>
     </item>
     <!-- cara principal -->

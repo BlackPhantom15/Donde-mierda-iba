@@ -169,7 +169,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
 
             // Configurar "candados"
             val textColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
-            val dividerColor = ContextCompat.getColor(requireContext(), R.color.glass_stroke)
+            val dividerColor = ContextCompat.getColor(requireContext(), R.color.accent_orange)
 
             // Duración: horas + minutos, se guardan como un único total de minutos.
             val totalMinutes = item.minute.coerceIn(0, 5999)

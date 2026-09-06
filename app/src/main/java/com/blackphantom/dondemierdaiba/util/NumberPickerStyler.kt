@@ -37,7 +37,14 @@ object NumberPickerStyler {
             try {
                 val dividerField = NumberPicker::class.java.getDeclaredField("mSelectionDivider")
                 dividerField.isAccessible = true
-                dividerField.set(picker, android.graphics.drawable.ColorDrawable(dividerColor))
+                // Línea con efecto de luz: se desvanece hacia los extremos en vez de
+                // ser un color plano, para que se vea como si el naranja iluminara
+                // el fondo neumórfico de alrededor.
+                val glowLine = android.graphics.drawable.GradientDrawable(
+                    android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                    intArrayOf(0x00000000, dividerColor, dividerColor, 0x00000000)
+                )
+                dividerField.set(picker, glowLine)
             } catch (_: Exception) {
                 // idem, no crítico
             }
