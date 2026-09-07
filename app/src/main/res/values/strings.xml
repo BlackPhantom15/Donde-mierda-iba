@@ -2,6 +2,10 @@
 <resources>
     <string name="app_name">Dónde Mierda Iba</string>
     <string name="by_blackphantom">By BlackPhantom</string>
+    <string name="splash_tagline">Donde mierda iba</string>
+
+    <string name="about_menu_action">Acerca de la app</string>
+    <string name="about_description">Dónde Mierda Iba te ayuda a llevar el registro de en qué capítulo, temporada o minuto te quedaste de tus series, pelis y videos. Así la próxima vez que abrís algo, ya sabés por dónde seguir, sin vueltas ni quilombo.</string>
 
     <string name="tab_series">Series</string>
     <string name="tab_peliculas">Películas</string>

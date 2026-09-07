@@ -6,7 +6,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.blackphantom.dondemierdaiba.R
 import com.blackphantom.dondemierdaiba.databinding.ActivitySplashBinding
 
 class SplashActivity : AppCompatActivity() {
@@ -18,6 +23,7 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        stylizeTagline()
         animateLogo()
 
         Handler(Looper.getMainLooper()).postDelayed({
@@ -25,6 +31,22 @@ class SplashActivity : AppCompatActivity() {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
         }, 1900)
+    }
+
+    // "mierda" en naranja (misma paleta que el logo), el resto en el color de texto primario
+    private fun stylizeTagline() {
+        val text = getString(R.string.splash_tagline)
+        val spannable = SpannableString(text)
+        val start = text.indexOf("mierda")
+        if (start >= 0) {
+            spannable.setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(this, R.color.accent_orange)),
+                start,
+                start + "mierda".length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        binding.txtAppName.text = spannable
     }
 
     private fun animateLogo() {

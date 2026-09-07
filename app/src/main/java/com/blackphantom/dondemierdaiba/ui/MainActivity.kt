@@ -1,8 +1,11 @@
 package com.blackphantom.dondemierdaiba.ui
 
 import android.Manifest
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +15,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -207,6 +212,33 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
             startOnboarding()
         }
+        view.findViewById<View>(R.id.btnAboutApp).setOnClickListener {
+            dialog.dismiss()
+            showAboutDialog()
+        }
+
+        dialog.show()
+    }
+
+    // ---------- Acerca de la app (modal glass) ----------
+
+    private fun showAboutDialog() {
+        val dialog = Dialog(this).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+        }
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_about, null)
+        dialog.setContentView(view)
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setDimAmount(0.65f)
+            setLayout(
+                (resources.displayMetrics.widthPixels * 0.88).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        view.findViewById<View>(R.id.btnCloseAbout).setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }

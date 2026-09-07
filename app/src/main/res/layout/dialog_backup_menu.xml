@@ -60,4 +60,15 @@
         android:gravity="center_vertical|start"
         android:text="@string/tutorial_replay" />
 
+    <Button
+        android:id="@+id/btnAboutApp"
+        style="@style/Widget.DMI.AppleButton.Ghost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:drawableStart="@drawable/ic_info"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/about_menu_action" />
+
 </LinearLayout>
