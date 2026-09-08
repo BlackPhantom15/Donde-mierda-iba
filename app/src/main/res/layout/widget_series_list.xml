@@ -32,6 +32,15 @@
             android:textSize="14.5sp" />
 
         <ImageView
+            android:id="@+id/widgetBtnCheckUpdates"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/widget_btn_refresh_circle"
+            android:padding="8dp"
+            android:src="@drawable/ic_widget_refresh" />
+
+        <ImageView
             android:id="@+id/widgetBtnAdd"
             android:layout_width="32dp"
             android:layout_height="32dp"

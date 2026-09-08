@@ -11,6 +11,7 @@ import com.blackphantom.dondemierdaiba.data.AppDatabase
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
 import com.blackphantom.dondemierdaiba.util.EpisodeCounts
 import com.blackphantom.dondemierdaiba.util.NotificationHelper
+import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
 
 /**
  * Recorre las series vinculadas a TVmaze y, si hay un capítulo o temporada
@@ -33,6 +34,8 @@ class NewEpisodeCheckWorker(
                 applicationContext, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
 
+        var hayCambios = false
+
         for (item in linkedSeries) {
             val showId = item.tvMazeId ?: continue
             val latest = TvMazeApi.latestAiredEpisode(showId) ?: continue
@@ -41,6 +44,8 @@ class NewEpisodeCheckWorker(
                 (latest.season == item.remoteSeason && latest.number > item.remoteEpisode)
 
             if (hayNovedad) {
+                hayCambios = true
+
                 if (canNotify) {
                     NotificationHelper.notifyNewEpisode(applicationContext, item, latest)
                 }
@@ -59,6 +64,12 @@ class NewEpisodeCheckWorker(
                     )
                 )
             }
+        }
+
+        // Si hubo novedades (ya sea por el chequeo automático o por el botón
+        // del widget), refrescamos el widget para que se vea al toque.
+        if (hayCambios) {
+            SeriesWidgetProvider.requestRefresh(applicationContext)
         }
 
         return Result.success()

@@ -15,6 +15,7 @@ import com.blackphantom.dondemierdaiba.R
 import com.blackphantom.dondemierdaiba.data.AppDatabase
 import com.blackphantom.dondemierdaiba.ui.MainActivity
 import com.blackphantom.dondemierdaiba.util.EpisodeCounts
+import com.blackphantom.dondemierdaiba.work.EpisodeCheckScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +36,12 @@ class SeriesWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+
+        if (intent.action == ACTION_CHECK_UPDATES) {
+            EpisodeCheckScheduler.checkNow(context)
+            Toast.makeText(context, R.string.checking_updates, Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val action = intent.getStringExtra(EXTRA_ACTION) ?: return
         val itemId = intent.getLongExtra(EXTRA_ITEM_ID, -1L)
@@ -119,6 +126,7 @@ class SeriesWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_WIDGET_CLICK = "com.blackphantom.dondemierdaiba.widget.ACTION_WIDGET_CLICK"
+        const val ACTION_CHECK_UPDATES = "com.blackphantom.dondemierdaiba.widget.ACTION_CHECK_UPDATES"
         const val EXTRA_ACTION = "extra_widget_action"
         const val EXTRA_ITEM_ID = "extra_widget_item_id"
 
@@ -158,6 +166,16 @@ class SeriesWidgetProvider : AppWidgetProvider() {
                 context, 1, addIntent, immutableFlags()
             )
             rv.setOnClickPendingIntent(R.id.widgetBtnAdd, addPendingIntent)
+
+            // Botón de "buscar novedades" del header: dispara el chequeo contra
+            // TVmaze en segundo plano sin abrir la app.
+            val checkUpdatesIntent = Intent(context, SeriesWidgetProvider::class.java).apply {
+                action = ACTION_CHECK_UPDATES
+            }
+            val checkUpdatesPendingIntent = PendingIntent.getBroadcast(
+                context, 2, checkUpdatesIntent, immutableFlags()
+            )
+            rv.setOnClickPendingIntent(R.id.widgetBtnCheckUpdates, checkUpdatesPendingIntent)
 
             return rv
         }

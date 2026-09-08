@@ -57,7 +57,7 @@
     <string name="notif_new_episode_title">📺 Nuevo capítulo de %1$s</string>
     <string name="notif_new_episode_body">Temporada %1$d · Capítulo %2$d ya está disponible</string>
 
-    <string name="tvmaze_linked">Serie vinculada con TVmaze ✅ vas a recibir avisos de capítulos nuevos</string>
+    <string name="tvmaze_linked">Serie vinculada con éxito ✅ Recibirás notificaciones de los nuevos capítulos</string>
     <string name="tvmaze_not_found">No se encontró en TVmaze, se guardó igual pero sin avisos automáticos</string>
     <string name="progress_adjusted">⚠️ Esa serie no llega hasta ahí — se ajustó tu progreso a T%1$d · C%2$d, lo máximo que tiene según TVmaze</string>
     <string name="remote_latest">Último: T%1$d · C%2$d</string>
