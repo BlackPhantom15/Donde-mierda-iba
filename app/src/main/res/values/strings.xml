@@ -127,4 +127,26 @@
 
     <string name="tutorial_add_title">El botón más importante</string>
     <string name="tutorial_add_body">Acá cargás lo que estés viendo. Y con esto ya sabés usar la app entera — ahora andá a anotar todo lo que tenés pendiente, que seguro es un montón.</string>
+
+    <!-- Calificación con estrellas -->
+    <string name="rating_label_movie">Tu calificación</string>
+    <string name="rating_label_series">Calificá este capítulo</string>
+    <string name="rating_star_n">Estrella</string>
+    <string name="season_average_format">Promedio T%1$d: %2$.1f ⭐ (%3$d capítulos)</string>
+
+    <!-- Marcar como visto -->
+    <string name="mark_watched_action">Marcar visto</string>
+    <string name="mark_watched_done">Ya lo viste ✅</string>
+    <string name="season_complete_toast">🎉 Temporada %1$d completa</string>
+    <string name="series_complete_toast">🏆 ¡Terminaste la serie!</string>
+    <string name="movie_complete_toast">🏆 ¡Marcada como vista!</string>
+
+    <!-- Dónde ver -->
+    <string name="where_to_watch_action">Dónde ver</string>
+    <string name="where_to_watch_title">Dónde ver</string>
+    <string name="where_to_watch_subtitle">Plataformas disponibles en Argentina, según TMDb</string>
+    <string name="where_to_watch_loading">Buscando dónde está disponible…</string>
+    <string name="where_to_watch_empty">No encontramos dónde está disponible por streaming ahora mismo</string>
+    <string name="where_to_watch_error">No se pudo consultar. Revisá tu conexión o la clave de TMDb</string>
+    <string name="where_to_watch_attribution">Datos de streaming provistos por TMDb (JustWatch)</string>
 </resources>

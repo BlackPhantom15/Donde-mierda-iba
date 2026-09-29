@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.migration.Migration
 
-@Database(entities = [ContentEntity::class], version = 4, exportSchema = false)
+@Database(entities = [ContentEntity::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun contentDao(): ContentDao
@@ -36,6 +36,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v4 -> v5: calificación con estrellas (rating, episodeRatingsJson) y
+        // marcado de "visto completo" (episodeWatchedJson, isCompleted).
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE content_items ADD COLUMN rating INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE content_items ADD COLUMN episodeRatingsJson TEXT")
+                db.execSQL("ALTER TABLE content_items ADD COLUMN episodeWatchedJson TEXT")
+                db.execSQL("ALTER TABLE content_items ADD COLUMN isCompleted INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -43,7 +54,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "donde_mierda_iba.db"
                 )
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     // Red de seguridad solo para saltos de versión muy viejos que no
                     // tengan un camino de migración explícito. Para los casos
                     // normales (v2 -> v3 -> v4) se usan las migraciones reales de

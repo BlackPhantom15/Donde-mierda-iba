@@ -39,6 +39,10 @@
 
     <color name="danger">#E2492F</color>
 
+    <!-- Halo de "completado": único color que no sale de la iluminación naranja -->
+    <color name="completed_green">#4ADE80</color>
+    <color name="completed_green_soft">#3A4ADE80</color>
+
     <color name="platform_youtube">#FF3B3B</color>
     <color name="platform_twitch">#9146FF</color>
     <color name="platform_kick">#53FC18</color>

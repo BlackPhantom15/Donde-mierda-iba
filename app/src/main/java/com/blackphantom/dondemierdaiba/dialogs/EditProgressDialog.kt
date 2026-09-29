@@ -10,16 +10,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.NumberPicker
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.blackphantom.dondemierdaiba.R
 import com.blackphantom.dondemierdaiba.data.AppDatabase
+import com.blackphantom.dondemierdaiba.data.ContentDao
 import com.blackphantom.dondemierdaiba.data.ContentEntity
 import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.data.ImageSource
@@ -27,6 +30,8 @@ import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.databinding.DialogEditProgressBinding
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
 import com.blackphantom.dondemierdaiba.util.EpisodeCounts
+import com.blackphantom.dondemierdaiba.util.EpisodeRatings
+import com.blackphantom.dondemierdaiba.util.EpisodeWatched
 import com.blackphantom.dondemierdaiba.util.ImagePickerHelper
 import com.blackphantom.dondemierdaiba.util.ImagePreviewHelper
 import com.blackphantom.dondemierdaiba.util.NumberPickerStyler
@@ -52,6 +57,17 @@ class EditProgressDialog : BottomSheetDialogFragment() {
     // que esa temporada no tiene. Vacío si la serie no está vinculada o
     // todavía no se pudo consultar.
     private var episodeCounts: Map<Int, Int> = emptyMap()
+
+    // Calificación y progreso "visto completo", editados en memoria acá y
+    // recién persistidos al confirmar (botón de tilde o "Actualizar").
+    private var workingEpisodeRatingsJson: String? = null
+    private var workingEpisodeWatchedJson: String? = null
+    private var workingMovieRating: Int = 0
+    private var workingIsCompleted: Boolean = false
+
+    private val starButtons: List<ImageButton> by lazy {
+        listOf(binding.star1, binding.star2, binding.star3, binding.star4, binding.star5)
+    }
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -116,6 +132,10 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             val item = dao.getById(itemId) ?: run { dismiss(); return@launch }
             currentItem = item
             episodeCounts = EpisodeCounts.fromJson(item.episodeCountsJson)
+            workingEpisodeRatingsJson = item.episodeRatingsJson
+            workingEpisodeWatchedJson = item.episodeWatchedJson
+            workingMovieRating = item.rating
+            workingIsCompleted = item.isCompleted
 
             binding.txtName.setText(item.name)
 
@@ -167,6 +187,10 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 }
             }
 
+            // Confirmar rápido: hace exactamente lo mismo que "Actualizar",
+            // pero sin tener que bajar hasta el final del modal.
+            binding.btnQuickConfirm.setOnClickListener { performUpdate(item, dao) }
+
             // Configurar "candados"
             val textColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
             val dividerColor = ContextCompat.getColor(requireContext(), R.color.accent_orange)
@@ -207,11 +231,19 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 applyEpisodeLimitFor(binding.pickerSeason.value, initialValue = item.episode)
 
                 // Al cambiar la temporada, recalculamos al toque el máximo de
-                // capítulo permitido según lo que esa temporada tiene de verdad.
+                // capítulo permitido según lo que esa temporada tiene de verdad,
+                // y refrescamos la calificación/estado de "visto" de ese capítulo.
                 binding.pickerSeason.setOnValueChangedListener { _, _, newSeason ->
                     applyEpisodeLimitFor(newSeason, initialValue = null)
+                    refreshSeriesRatingAndWatchedUi()
+                }
+                binding.pickerEpisode.setOnValueChangedListener { _, _, _ ->
+                    refreshSeriesRatingAndWatchedUi()
                 }
             }
+
+            setupRatingAndWatchedUi(item)
+            setupWhereToWatch(item)
 
             binding.btnCancel.setOnClickListener { dismiss() }
 
@@ -223,75 +255,201 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 }
             }
 
-            binding.btnUpdate.setOnClickListener {
-                val newName = binding.txtName.text.toString().trim()
-                if (newName.isEmpty()) {
-                    binding.txtName.error = getString(R.string.field_name)
-                    return@setOnClickListener
-                }
+            binding.btnUpdate.setOnClickListener { performUpdate(item, dao) }
+        }
+    }
 
-                binding.btnUpdate.isEnabled = false
+    // ---------- Calificación con estrellas + marcar como visto ----------
 
-                lifecycleScope.launch {
-                    var tvMazeId = item.tvMazeId
-                    var remoteSeason = item.remoteSeason
-                    var remoteEpisode = item.remoteEpisode
-                    var episodeCountsJson = item.episodeCountsJson
+    private fun setupRatingAndWatchedUi(item: ContentEntity) {
+        binding.txtRatingLabel.text = if (item.typeEnum == ContentType.SERIE) {
+            getString(R.string.rating_label_series)
+        } else {
+            getString(R.string.rating_label_movie)
+        }
 
-                    // Si la serie NO estaba vinculada a TVmaze y le cambiaron
-                    // el nombre, probamos vincularla de nuevo con el nombre
-                    // corregido. Si encuentra algo y todavía no hay imagen
-                    // elegida a mano, usamos el póster que trae TVmaze.
-                    val shouldRelink = item.typeEnum == ContentType.SERIE &&
-                        item.tvMazeId == null && newName != item.name
+        starButtons.forEachIndexed { index, star ->
+            star.setOnClickListener { onStarClicked(item, index + 1) }
+        }
 
-                    if (shouldRelink) {
-                        binding.btnUpdate.text = getString(R.string.checking_updates)
-                        val match = TvMazeApi.searchShow(newName)
-                        if (match != null) {
-                            tvMazeId = match.id
+        if (item.typeEnum == ContentType.SERIE) {
+            refreshSeriesRatingAndWatchedUi()
+        } else {
+            drawStars(workingMovieRating)
+            binding.txtSeasonAverage.visibility = View.GONE
+        }
 
-                            if (pickedImageSource == ImageSource.NONE && !match.imageUrl.isNullOrBlank()) {
-                                pickedImageUri = match.imageUrl
-                                pickedImageSource = ImageSource.WEB
-                            }
+        binding.btnMarkWatched.setOnClickListener { onMarkWatchedClicked(item) }
+        updateMarkWatchedButtonUi(item)
+    }
 
-                            val latest = TvMazeApi.latestAiredEpisode(match.id)
-                            if (latest != null) {
-                                remoteSeason = latest.season
-                                remoteEpisode = latest.number
-                            }
+    private fun onStarClicked(item: ContentEntity, stars: Int) {
+        if (item.typeEnum == ContentType.SERIE) {
+            val season = binding.pickerSeason.value
+            val episode = binding.pickerEpisode.value
+            // Tocar la misma estrella que ya estaba puesta la "apaga" (borra la nota).
+            val current = EpisodeRatings.ratingFor(workingEpisodeRatingsJson, season, episode)
+            val newValue = if (current == stars) 0 else stars
+            workingEpisodeRatingsJson = EpisodeRatings.rate(workingEpisodeRatingsJson, season, episode, newValue)
+            refreshSeriesRatingAndWatchedUi()
+        } else {
+            workingMovieRating = if (workingMovieRating == stars) 0 else stars
+            drawStars(workingMovieRating)
+        }
+    }
 
-                            val counts = TvMazeApi.episodesBySeason(match.id)
-                            if (counts != null) episodeCountsJson = EpisodeCounts.toJson(counts)
+    /** Redibuja estrellas + promedio de temporada según la temporada/capítulo elegidos ahora mismo. */
+    private fun refreshSeriesRatingAndWatchedUi() {
+        val season = binding.pickerSeason.value
+        val episode = binding.pickerEpisode.value
 
-                            if (isAdded) {
-                                Toast.makeText(requireContext(), getString(R.string.tvmaze_linked), Toast.LENGTH_LONG).show()
-                            }
-                        }
+        drawStars(EpisodeRatings.ratingFor(workingEpisodeRatingsJson, season, episode))
+
+        val (average, count) = EpisodeRatings.seasonAverage(workingEpisodeRatingsJson, season)
+        if (count > 0) {
+            binding.txtSeasonAverage.visibility = View.VISIBLE
+            binding.txtSeasonAverage.text = getString(R.string.season_average_format, season, average, count)
+        } else {
+            binding.txtSeasonAverage.visibility = View.GONE
+        }
+
+        currentItem?.let { updateMarkWatchedButtonUi(it) }
+    }
+
+    private fun drawStars(rating: Int) {
+        starButtons.forEachIndexed { index, star ->
+            star.setImageResource(if (index < rating) R.drawable.ic_star_filled else R.drawable.ic_star_outline)
+        }
+    }
+
+    private fun onMarkWatchedClicked(item: ContentEntity) {
+        if (item.typeEnum == ContentType.SERIE) {
+            val season = binding.pickerSeason.value
+            val episode = binding.pickerEpisode.value
+            val wasWatched = EpisodeWatched.isWatched(workingEpisodeWatchedJson, season, episode)
+            workingEpisodeWatchedJson = EpisodeWatched.setWatched(workingEpisodeWatchedJson, season, episode, !wasWatched)
+
+            if (!wasWatched) {
+                when {
+                    EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, item.episodeCountsJson) -> {
+                        Toast.makeText(requireContext(), getString(R.string.series_complete_toast), Toast.LENGTH_LONG).show()
                     }
-
-                    val updated = item.copy(
-                        name = newName,
-                        season = if (item.typeEnum == ContentType.SERIE) binding.pickerSeason.value else item.season,
-                        episode = if (item.typeEnum == ContentType.SERIE) binding.pickerEpisode.value else item.episode,
-                        minute = binding.pickerHour.value * 60 + binding.pickerMinute.value,
-                        imageUri = pickedImageUri,
-                        imageSource = pickedImageSource.name,
-                        platform = if (item.typeEnum == ContentType.VIDEO) selectedPlatform?.name else item.platform,
-                        isPinnedToWidget = currentItem?.isPinnedToWidget ?: item.isPinnedToWidget,
-                        tvMazeId = tvMazeId,
-                        remoteSeason = remoteSeason,
-                        remoteEpisode = remoteEpisode,
-                        episodeCountsJson = episodeCountsJson,
-                        updatedAt = System.currentTimeMillis()
-                    )
-
-                    dao.update(updated)
-                    if (item.typeEnum == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
-                    dismiss()
+                    EpisodeWatched.isSeasonComplete(workingEpisodeWatchedJson, item.episodeCountsJson, season) -> {
+                        Toast.makeText(requireContext(), getString(R.string.season_complete_toast, season), Toast.LENGTH_LONG).show()
+                    }
                 }
             }
+        } else {
+            workingIsCompleted = !workingIsCompleted
+            if (workingIsCompleted) {
+                Toast.makeText(requireContext(), getString(R.string.movie_complete_toast), Toast.LENGTH_SHORT).show()
+            }
+        }
+        updateMarkWatchedButtonUi(item)
+    }
+
+    private fun updateMarkWatchedButtonUi(item: ContentEntity) {
+        val watched = if (item.typeEnum == ContentType.SERIE) {
+            EpisodeWatched.isWatched(workingEpisodeWatchedJson, binding.pickerSeason.value, binding.pickerEpisode.value)
+        } else {
+            workingIsCompleted
+        }
+        binding.btnMarkWatched.text = if (watched) getString(R.string.mark_watched_done) else getString(R.string.mark_watched_action)
+    }
+
+    // ---------- Dónde ver ----------
+
+    private fun setupWhereToWatch(item: ContentEntity) {
+        if (item.typeEnum == ContentType.VIDEO) {
+            binding.btnWhereToWatch.visibility = View.GONE
+            return
+        }
+        binding.btnWhereToWatch.setOnClickListener {
+            WhereToWatchDialog.newInstance(
+                name = binding.txtName.text.toString().trim().ifBlank { item.name },
+                isMovie = item.typeEnum == ContentType.PELICULA
+            ).show(childFragmentManager, "where_to_watch")
+        }
+    }
+
+    // ---------- Guardar ----------
+
+    private fun performUpdate(item: ContentEntity, dao: ContentDao) {
+        val newName = binding.txtName.text.toString().trim()
+        if (newName.isEmpty()) {
+            binding.txtName.error = getString(R.string.field_name)
+            return
+        }
+
+        binding.btnUpdate.isEnabled = false
+        binding.btnQuickConfirm.isEnabled = false
+
+        lifecycleScope.launch {
+            var tvMazeId = item.tvMazeId
+            var remoteSeason = item.remoteSeason
+            var remoteEpisode = item.remoteEpisode
+            var episodeCountsJson = item.episodeCountsJson
+
+            // Si la serie NO estaba vinculada a TVmaze y le cambiaron
+            // el nombre, probamos vincularla de nuevo con el nombre
+            // corregido. Si encuentra algo y todavía no hay imagen
+            // elegida a mano, usamos el póster que trae TVmaze.
+            val shouldRelink = item.typeEnum == ContentType.SERIE &&
+                item.tvMazeId == null && newName != item.name
+
+            if (shouldRelink) {
+                binding.btnUpdate.text = getString(R.string.checking_updates)
+                val match = TvMazeApi.searchShow(newName)
+                if (match != null) {
+                    tvMazeId = match.id
+
+                    if (pickedImageSource == ImageSource.NONE && !match.imageUrl.isNullOrBlank()) {
+                        pickedImageUri = match.imageUrl
+                        pickedImageSource = ImageSource.WEB
+                    }
+
+                    val latest = TvMazeApi.latestAiredEpisode(match.id)
+                    if (latest != null) {
+                        remoteSeason = latest.season
+                        remoteEpisode = latest.number
+                    }
+
+                    val counts = TvMazeApi.episodesBySeason(match.id)
+                    if (counts != null) episodeCountsJson = EpisodeCounts.toJson(counts)
+
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), getString(R.string.tvmaze_linked), Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+
+            val updated = item.copy(
+                name = newName,
+                season = if (item.typeEnum == ContentType.SERIE) binding.pickerSeason.value else item.season,
+                episode = if (item.typeEnum == ContentType.SERIE) binding.pickerEpisode.value else item.episode,
+                minute = binding.pickerHour.value * 60 + binding.pickerMinute.value,
+                imageUri = pickedImageUri,
+                imageSource = pickedImageSource.name,
+                platform = if (item.typeEnum == ContentType.VIDEO) selectedPlatform?.name else item.platform,
+                isPinnedToWidget = currentItem?.isPinnedToWidget ?: item.isPinnedToWidget,
+                tvMazeId = tvMazeId,
+                remoteSeason = remoteSeason,
+                remoteEpisode = remoteEpisode,
+                episodeCountsJson = episodeCountsJson,
+                rating = if (item.typeEnum == ContentType.SERIE) item.rating else workingMovieRating,
+                episodeRatingsJson = workingEpisodeRatingsJson,
+                episodeWatchedJson = workingEpisodeWatchedJson,
+                isCompleted = if (item.typeEnum == ContentType.SERIE) {
+                    EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, episodeCountsJson)
+                } else {
+                    workingIsCompleted
+                },
+                updatedAt = System.currentTimeMillis()
+            )
+
+            dao.update(updated)
+            if (item.typeEnum == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
+            dismiss()
         }
     }
 
@@ -375,12 +533,21 @@ class EditProgressDialog : BottomSheetDialogFragment() {
     }
 
     private fun renderImage() {
+        // Radio en píxeles equivalente a los 16dp de bg_glass_input: si no se
+        // convierte a densidad, en pantallas de alta densidad el recorte de
+        // Glide queda más chico que el del fondo y se ven las puntas cuadradas
+        // de la foto asomando por las esquinas redondeadas del marco.
+        val cornerPx = (16 * resources.displayMetrics.density).toInt()
+
         when (pickedImageSource) {
             ImageSource.LOCAL, ImageSource.WEB -> {
                 binding.txtPlatformInitial.visibility = View.GONE
                 binding.imgPreview.background =
                     ContextCompat.getDrawable(requireContext(), R.drawable.bg_glass_input)
-                Glide.with(this).load(pickedImageUri).into(binding.imgPreview)
+                Glide.with(this)
+                    .load(pickedImageUri)
+                    .transform(CenterCrop(), RoundedCorners(cornerPx))
+                    .into(binding.imgPreview)
             }
             ImageSource.PRESET -> {
                 val platform = VideoPlatform.fromNameOrNull(pickedImageUri)

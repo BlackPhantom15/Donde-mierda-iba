@@ -34,6 +34,23 @@ data class ContentEntity(
     // máximo real de cada temporada. Null si todavía no se pudo consultar.
     val episodeCountsJson: String? = null,
 
+    // Calificación con estrellas (0 a 5). Para PELICULA y VIDEO es una sola
+    // nota. Para SERIE no se usa este campo: se califica capítulo por
+    // capítulo en episodeRatingsJson.
+    val rating: Int = 0,
+
+    // Solo SERIE: calificación por capítulo, como JSON ("{"1-1":5,"1-2":4}",
+    // clave "temporada-capítulo"). De acá sale el promedio por temporada.
+    val episodeRatingsJson: String? = null,
+
+    // Solo SERIE: qué capítulos quedaron marcados como "visto completo",
+    // como JSON ("{"1-1":true,"1-2":true}"). Sirve para calcular sola cuándo
+    // una temporada (o la serie entera) quedó completa.
+    val episodeWatchedJson: String? = null,
+
+    // PELICULA y VIDEO: si ya se marcó como visto completo.
+    val isCompleted: Boolean = false,
+
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {

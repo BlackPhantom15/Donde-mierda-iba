@@ -20,6 +20,10 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Edición rápida de nombre, imagen y progreso sin tener que borrar y recargar.
 - Vista previa en grande antes de cambiar una imagen ya elegida (no salta directo al selector) — se ve la imagen completa, sin recortar, sea cual sea su proporción.
 - Selector de progreso estilo "candado de valija" (`NumberPicker`) para subir o bajar temporada, capítulo o duración de forma intuitiva — la duración se edita en horas + minutos (mucho más cómodo para películas largas que scrollear un solo contador hasta 150).
+- Botón de confirmar (✔) arriba, al lado del de anclar, para guardar los cambios sin tener que bajar hasta el final del modal.
+- **Calificación con estrellas**: en series se califica capítulo por capítulo (y se muestra el promedio de la temporada elegida), y en películas y videos se califica una sola vez por título.
+- **Marcar como visto completo**: en series se marca capítulo por capítulo, y cuando quedan vistos todos los de una temporada la app la da por completa sola (y cuando se completan todas las temporadas conocidas, la serie entera). En películas y videos es un solo botón. Lo que quedó completado se resalta en la lista con un borde verde fino.
+- **Dónde ver**: modal translúcido tipo vidrio que muestra en qué plataformas de streaming está disponible una serie o película en Argentina (suscripción, alquiler o compra), consultando la API de [TMDb](https://www.themoviedb.org/documentation/api).
 
 **Integración con TVmaze**
 - Al cargar una serie, se busca automáticamente en la [API pública de TVmaze](https://www.tvmaze.com/api) (gratis, sin API key).
@@ -65,7 +69,7 @@ _(pendiente — sacar un par de capturas de la app corriendo y linkearlas acá a
 | Trabajo en segundo plano | WorkManager |
 | Widget | `AppWidgetProvider` + `RemoteViewsService` (colección clásica, sin Jetpack Glance) |
 | Networking | `HttpURLConnection` + `org.json` (sin Retrofit/OkHttp, a propósito, para no sumar peso) |
-| APIs externas | [TVmaze](https://www.tvmaze.com/api) |
+| APIs externas | [TVmaze](https://www.tvmaze.com/api), [TMDb](https://www.themoviedb.org/documentation/api) (solo para "Dónde ver", requiere clave propia) |
 
 **Compatibilidad:** `minSdk 19` (Android 4.4+) / `compileSdk 34`. Usa multidex (`androidx.multidex`) porque por debajo de API 21 no viene soportado de forma nativa.
 
@@ -79,7 +83,18 @@ git clone <este-repo>
 2. Dejar que sincronice Gradle (regenera el wrapper automáticamente si hace falta).
 3. Correr en un emulador o dispositivo físico.
 
-No requiere ninguna API key: TVmaze es de acceso libre.
+No requiere ninguna API key para lo principal: TVmaze es de acceso libre.
+
+**Opcional — "Dónde ver":** esta función consulta TMDb, que sí pide una clave gratuita propia:
+
+1. Creá una cuenta en [themoviedb.org](https://www.themoviedb.org/) y pedí tu API key en *Configuración → API* (es gratis).
+2. Agregá esta línea a tu `local.properties` (el mismo archivo donde ya está `sdk.dir`; ese archivo no se sube al repo):
+
+```properties
+TMDB_API_KEY=tu_clave_aca
+```
+
+3. Sincronizá Gradle y volvé a compilar. Si no configurás la clave, el resto de la app funciona igual y el modal de "Dónde ver" simplemente avisa que no se pudo consultar.
 
 ## Estructura del proyecto
 
@@ -103,6 +118,12 @@ app/src/main/java/com/blackphantom/dondemierdaiba/
 - [x] Limitar el candado de capítulo al máximo real de cada temporada, según TVmaze.
 - [x] Selector de horas además de minutos (más cómodo para películas largas).
 - [x] Chequeo periódico más frecuente (6 h) + aviso para excluir la app del ahorro de batería, para que las notificaciones de capítulos nuevos lleguen sin tener que abrir la app.
+- [x] Notificaciones con el logo de la app (ícono grande a color) en vez de una campanita genérica.
+- [x] Calificación con estrellas por capítulo (con promedio por temporada) y por película/video.
+- [x] Marcado de "visto completo", con detección automática de temporada y serie completas, resaltado con borde verde en la lista.
+- [x] Botón de confirmar rápido junto al de anclar.
+- [x] Modal "Dónde ver" (TMDb / JustWatch) con plataformas de streaming disponibles en Argentina.
+- [x] Revisión de bugs visuales: el recorte redondeado de varias miniaturas (lista, cuadrícula, vista previa, buscador de imágenes) estaba calculado en píxeles crudos en vez de convertir por densidad de pantalla, así que en equipos de alta densidad se veían las puntas cuadradas de la foto asomando por las esquinas del marco. También faltaba el recorte redondeado directamente en las imágenes elegidas al cargar contenido nuevo.
 - [ ] Selector de posters oficiales de películas vía TMDb (requeriría API key propia — TVmaze solo cubre series).
 - [ ] Soporte para más de un idioma.
 - [ ] Tests instrumentados para DAO y Workers.
@@ -114,11 +135,12 @@ Repositorio personal. Si querés reutilizar código o adaptarlo a tu propio proy
 ## Créditos
 
 - Datos de series: [TVmaze API](https://www.tvmaze.com/api).
+- Datos de disponibilidad de streaming ("Dónde ver"): [TMDb API](https://www.themoviedb.org/documentation/api) — este producto usa la API de TMDb pero no está avalado ni certificado por TMDb.
 - Iconografía e ilustraciones: creadas desde cero para este proyecto, sin assets de terceros.
 
 ## Base de datos
 
-La base va en su versión 4 (Room). Todos los saltos desde la v2 en adelante
+La base va en su versión 5 (Room). Todos los saltos desde la v2 en adelante
 tienen migración real (`ALTER TABLE`), así que actualizar la app no borra lo
 que ya tenías cargado.
 

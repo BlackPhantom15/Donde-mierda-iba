@@ -14,6 +14,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
@@ -179,7 +181,13 @@ class AddContentDialog : BottomSheetDialogFragment() {
     private fun renderPreview() {
         when (pickedImageSource) {
             ImageSource.LOCAL, ImageSource.WEB -> {
-                Glide.with(this).load(pickedImageUri).into(binding.imgPreview)
+                // Sin este recorte, la foto se cargaba como rectángulo puro y
+                // se veía asomando por las puntas del marco redondeado.
+                val cornerPx = (16 * resources.displayMetrics.density).toInt()
+                Glide.with(this)
+                    .load(pickedImageUri)
+                    .transform(CenterCrop(), RoundedCorners(cornerPx))
+                    .into(binding.imgPreview)
             }
             else -> binding.imgPreview.setImageResource(R.drawable.ic_image_placeholder)
         }

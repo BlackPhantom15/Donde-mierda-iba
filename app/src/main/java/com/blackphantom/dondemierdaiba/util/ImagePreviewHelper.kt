@@ -41,6 +41,10 @@ object ImagePreviewHelper {
         }
 
         val imgFull = view.findViewById<ImageView>(R.id.imgFullPreview)
+        // Radio en píxeles equivalente a 28dp: sin convertir por densidad, en
+        // pantallas de alta densidad el recorte quedaba más chico que el
+        // marco del diálogo y las puntas de la foto se veían cuadradas.
+        val cornerPx = (28 * context.resources.displayMetrics.density).toInt()
         Glide.with(context)
             .load(imageUri)
             .placeholder(R.drawable.ic_image_placeholder)
@@ -50,7 +54,7 @@ object ImagePreviewHelper {
             // puede no tener todavía un ancho/alto definitivo) y termine
             // pidiendo un bitmap más chico de lo que después se muestra.
             .override(1080, 1080)
-            .transform(RoundedCorners(28))
+            .transform(RoundedCorners(cornerPx))
             .into(imgFull)
 
         view.findViewById<View>(R.id.btnClosePreview).setOnClickListener { dialog.dismiss() }

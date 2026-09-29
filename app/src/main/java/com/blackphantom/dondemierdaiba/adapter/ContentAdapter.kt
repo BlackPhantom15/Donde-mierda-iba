@@ -18,6 +18,9 @@ import com.blackphantom.dondemierdaiba.data.ImageSource
 import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.util.PlatformVisuals
 import com.blackphantom.dondemierdaiba.util.DurationFormatter
+import com.blackphantom.dondemierdaiba.util.EpisodeWatched
+import com.google.android.material.card.MaterialCardView
+import androidx.core.content.ContextCompat
 
 class ContentAdapter(
     private var isGrid: Boolean,
@@ -104,7 +107,28 @@ class ContentAdapter(
                 txtRemoteInfo?.visibility = android.view.View.GONE
             }
 
-            val corner = RoundedCorners(20)
+            // Halo verde fino: se resalta el contenido que ya se terminó de
+            // ver por completo (serie con todas las temporadas conocidas
+            // vistas, o película/video marcados como vistos).
+            val isFullyCompleted = when (item.typeEnum) {
+                ContentType.SERIE -> EpisodeWatched.isSeriesComplete(item.episodeWatchedJson, item.episodeCountsJson)
+                else -> item.isCompleted
+            }
+            (itemView as? MaterialCardView)?.apply {
+                if (isFullyCompleted) {
+                    strokeColor = ContextCompat.getColor(itemView.context, R.color.completed_green)
+                    strokeWidth = (2 * itemView.context.resources.displayMetrics.density).toInt()
+                } else {
+                    strokeColor = ContextCompat.getColor(itemView.context, R.color.glass_stroke)
+                    strokeWidth = (1 * itemView.context.resources.displayMetrics.density).toInt()
+                }
+            }
+
+            // Radio en píxeles equivalente a los 16dp de bg_glass_input: sin
+            // convertir por densidad, en pantallas de alta densidad el
+            // recorte quedaba más chico que el marco y se veían las puntas
+            // cuadradas de la foto asomando por las esquinas.
+            val corner = RoundedCorners((16 * itemView.context.resources.displayMetrics.density).toInt())
             when (item.imageSourceEnum) {
                 ImageSource.LOCAL, ImageSource.WEB -> {
                     imgThumb.background = itemView.context.getDrawable(R.drawable.bg_glass_input)

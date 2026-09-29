@@ -30,11 +30,14 @@ class ImageResultAdapter(
         private val imgThumb: ImageView = itemView.findViewById(R.id.imgThumb)
 
         fun bind(item: WikimediaApi.ImageResult, onClick: (WikimediaApi.ImageResult) -> Unit) {
+            // Radio en píxeles equivalente a 14dp: sin convertir por
+            // densidad, quedaba más chico que el de la tarjeta contenedora.
+            val cornerPx = (14 * itemView.context.resources.displayMetrics.density).toInt()
             Glide.with(itemView)
                 .load(item.thumbnailUrl)
                 .placeholder(R.drawable.ic_image_placeholder)
                 .error(R.drawable.ic_image_placeholder)
-                .transform(CenterCrop(), RoundedCorners(14))
+                .transform(CenterCrop(), RoundedCorners(cornerPx))
                 .into(imgThumb)
 
             itemView.setOnClickListener { onClick(item) }

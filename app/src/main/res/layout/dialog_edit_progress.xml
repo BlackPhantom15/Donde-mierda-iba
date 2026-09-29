@@ -79,6 +79,16 @@
                 android:textSize="17sp" />
 
             <ImageButton
+                android:id="@+id/btnQuickConfirm"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_button_apple_normal"
+                android:padding="9dp"
+                android:src="@drawable/ic_check"
+                android:contentDescription="@string/update" />
+
+            <ImageButton
                 android:id="@+id/btnPinWidget"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -260,6 +270,123 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Calificación con estrellas -->
+        <LinearLayout
+            android:id="@+id/ratingSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtRatingLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/rating_label_movie"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/star1"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_star_outline"
+                    android:contentDescription="@string/rating_star_n" />
+
+                <ImageButton
+                    android:id="@+id/star2"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_star_outline"
+                    android:contentDescription="@string/rating_star_n" />
+
+                <ImageButton
+                    android:id="@+id/star3"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_star_outline"
+                    android:contentDescription="@string/rating_star_n" />
+
+                <ImageButton
+                    android:id="@+id/star4"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_star_outline"
+                    android:contentDescription="@string/rating_star_n" />
+
+                <ImageButton
+                    android:id="@+id/star5"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_star_outline"
+                    android:contentDescription="@string/rating_star_n" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtSeasonAverage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:textColor="@color/text_muted"
+                android:textSize="11.5sp"
+                android:visibility="gone"
+                tools:text="Promedio T2: 4.3 ⭐ (5 capítulos)"
+                xmlns:tools="http://schemas.android.com/tools" />
+
+        </LinearLayout>
+
+        <!-- Marcar como visto completo / dónde ver -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnMarkWatched"
+                style="@style/Widget.DMI.AppleButton.Ghost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:drawablePadding="6dp"
+                android:drawableStart="@drawable/ic_check"
+                android:text="@string/mark_watched_action"
+                android:textSize="12.5sp" />
+
+            <Button
+                android:id="@+id/btnWhereToWatch"
+                style="@style/Widget.DMI.AppleButton.Ghost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawablePadding="6dp"
+                android:drawableStart="@drawable/ic_where_to_watch"
+                android:text="@string/where_to_watch_action"
+                android:textSize="12.5sp" />
 
         </LinearLayout>
 
