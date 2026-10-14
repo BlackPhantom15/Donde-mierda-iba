@@ -151,3 +151,8 @@ que ya tenías cargado.
 ---
 
 **Black Phantom Tech** · San Juan, Argentina
+
+
+## Historial de versiones
+
+Todas las versiones de la app estan en este repositorio, una por tag. Mira [VERSIONES.md](VERSIONES.md) para ver que trajo cada una.
