@@ -40,6 +40,31 @@
                 android:text="@string/app_name"
                 android:textAppearance="@style/TextAppearance.DMI.Title" />
 
+            <FrameLayout
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp">
+
+                <ImageButton
+                    android:id="@+id/btnNotifications"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_glass_input"
+                    android:padding="9dp"
+                    android:src="@drawable/ic_bell"
+                    android:contentDescription="@string/notif_history_title" />
+
+                <View
+                    android:id="@+id/bellBadge"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/bg_badge_dot"
+                    android:visibility="gone" />
+            </FrameLayout>
+
             <ImageButton
                 android:id="@+id/btnBackupMenu"
                 android:layout_width="40dp"

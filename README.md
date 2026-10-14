@@ -54,6 +54,12 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Splash screen con logo y animación propios.
 - Tour guiado de bienvenida para usuarios nuevos: 7 pasos con un efecto "spotlight" (pantalla atenuada, agujero recortado sobre el botón que se está explicando) y globos de texto con un poco de humor. Hecho a mano con `Canvas`, sin ninguna librería externa. Se muestra una sola vez, pero se puede volver a ver cuando quieras desde el menú de los 3 puntitos (⋮) → "Ver el tour de nuevo".
 
+**Avisos y legales**
+- Campanita 🔔 en el encabezado: historial de los últimos avisos de capítulos/temporadas nuevas (se guardan en la base local, hasta 100), para no perderse nada si se borra la notificación del sistema. Punto naranja si hay avisos sin leer; tocar uno abre la serie.
+- Términos y condiciones propios dentro del menú ⋮, y créditos/atribuciones (TVmaze, TMDb, JustWatch) en "Acerca de la app".
+- El widget mantiene un orden fijo: sumar capítulos o temporadas desde ahí no mueve la serie de lugar.
+- Ícono de notificación monocromo con el fantasma de BlackPhantom.
+
 ## Capturas
 
 _(pendiente — sacar un par de capturas de la app corriendo y linkearlas acá antes de hacer público el repo)_
@@ -85,16 +91,12 @@ git clone <este-repo>
 
 No requiere ninguna API key para lo principal: TVmaze es de acceso libre.
 
-**Opcional — "Dónde ver":** esta función consulta TMDb, que sí pide una clave gratuita propia:
+**Opcional — "Dónde ver":** esta función consulta TMDb, que pide una clave gratuita propia de cada persona. No hace falta tocar el código ni ningún archivo: se carga desde la app.
 
-1. Creá una cuenta en [themoviedb.org](https://www.themoviedb.org/) y pedí tu API key en *Configuración → API* (es gratis).
-2. Agregá esta línea a tu `local.properties` (el mismo archivo donde ya está `sdk.dir`; ese archivo no se sube al repo):
+1. Creá una cuenta en [themoviedb.org](https://www.themoviedb.org/) y copiá tu "Clave de API" (v3) en *Ajustes → API* (es gratis).
+2. En la app: menú ⋮ → **Clave de TMDb**, pegala y tocá *Probar y guardar* (también te lo ofrece el propio modal de "Dónde ver" si todavía no cargaste una).
 
-```properties
-TMDB_API_KEY=tu_clave_aca
-```
-
-3. Sincronizá Gradle y volvé a compilar. Si no configurás la clave, el resto de la app funciona igual y el modal de "Dónde ver" simplemente avisa que no se pudo consultar.
+La clave se valida contra TMDb y queda guardada solo en tu dispositivo; nunca viaja a ningún otro lado ni forma parte del repo. Si no cargás ninguna, el resto de la app funciona igual.
 
 ## Estructura del proyecto
 
@@ -134,13 +136,15 @@ Repositorio personal. Si querés reutilizar código o adaptarlo a tu propio proy
 
 ## Créditos
 
-- Datos de series: [TVmaze API](https://www.tvmaze.com/api).
+- Datos de series: [TVmaze API](https://www.tvmaze.com/api), bajo licencia [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - Datos de disponibilidad de streaming ("Dónde ver"): [TMDb API](https://www.themoviedb.org/documentation/api) — este producto usa la API de TMDb pero no está avalado ni certificado por TMDb.
 - Iconografía e ilustraciones: creadas desde cero para este proyecto, sin assets de terceros.
 
+> **Nota legal:** la app no aloja ni reproduce contenido protegido; solo guarda un registro personal. Los términos de la app son un texto orientativo y conviene que los revise un abogado antes de publicarla en una tienda. La API de TMDb es de uso no comercial salvo acuerdo con ellos.
+
 ## Base de datos
 
-La base va en su versión 5 (Room). Todos los saltos desde la v2 en adelante
+La base va en su versión 6 (Room, con la tabla `notification_log` agregada en la v6). Todos los saltos desde la v2 en adelante
 tienen migración real (`ALTER TABLE`), así que actualizar la app no borra lo
 que ya tenías cargado.
 

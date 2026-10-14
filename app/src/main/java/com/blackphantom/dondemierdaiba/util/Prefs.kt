@@ -7,6 +7,7 @@ object Prefs {
     private const val KEY_GRID = "is_grid_view"
     private const val KEY_BATTERY_PROMPT_SHOWN = "battery_prompt_shown"
     private const val KEY_ONBOARDING_SHOWN = "onboarding_shown"
+    private const val KEY_TMDB_API_KEY = "tmdb_api_key"
 
     fun isGridView(context: Context): Boolean =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -35,5 +36,15 @@ object Prefs {
     fun setOnboardingShown(context: Context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean(KEY_ONBOARDING_SHOWN, true).apply()
+    }
+
+    /** Clave de TMDb que cargó la persona (vacía si no cargó ninguna). */
+    fun getTmdbKey(context: Context): String =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_TMDB_API_KEY, "").orEmpty()
+
+    fun setTmdbKey(context: Context, key: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putString(KEY_TMDB_API_KEY, key.trim()).apply()
     }
 }

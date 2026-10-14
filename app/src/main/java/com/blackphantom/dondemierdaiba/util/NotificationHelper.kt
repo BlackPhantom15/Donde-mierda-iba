@@ -10,7 +10,9 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.blackphantom.dondemierdaiba.R
+import com.blackphantom.dondemierdaiba.data.AppDatabase
 import com.blackphantom.dondemierdaiba.data.ContentEntity
+import com.blackphantom.dondemierdaiba.data.NotificationLogEntity
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
 import com.blackphantom.dondemierdaiba.ui.MainActivity
 
@@ -32,7 +34,8 @@ object NotificationHelper {
         }
     }
 
-    fun notifyNewEpisode(context: Context, item: ContentEntity, episode: TvMazeApi.LatestEpisode) {
+    /** Título y texto del aviso; se usan tanto para la notificación como para el historial. */
+    fun buildTexts(context: Context, item: ContentEntity, episode: TvMazeApi.LatestEpisode): Pair<String, String> {
         val isNewSeason = episode.season > item.remoteSeason
         val title = if (isNewSeason) {
             context.getString(R.string.notif_new_season_title, item.name)
@@ -43,6 +46,24 @@ object NotificationHelper {
             R.string.notif_new_episode_body,
             episode.season, episode.number
         ) + if (episode.name.isNotBlank()) " · ${episode.name}" else ""
+        return title to body
+    }
+
+    /** Guarda el aviso en el historial de la campanita (aunque no haya permiso de notificaciones). */
+    suspend fun logToHistory(context: Context, item: ContentEntity, episode: TvMazeApi.LatestEpisode) {
+        val (title, body) = buildTexts(context, item, episode)
+        val dao = AppDatabase.getInstance(context).notificationLogDao()
+        dao.insert(
+            NotificationLogEntity(
+                itemId = item.id, title = title, body = body,
+                timestamp = System.currentTimeMillis()
+            )
+        )
+        dao.trim()
+    }
+
+    fun notifyNewEpisode(context: Context, item: ContentEntity, episode: TvMazeApi.LatestEpisode) {
+        val (title, body) = buildTexts(context, item, episode)
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

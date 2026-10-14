@@ -1,6 +1,7 @@
 package com.blackphantom.dondemierdaiba.network
 
-import com.blackphantom.dondemierdaiba.BuildConfig
+import android.content.Context
+import com.blackphantom.dondemierdaiba.util.Prefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -16,10 +17,10 @@ import java.net.URLEncoder
  * (por atrás son los mismos datos que agrega JustWatch, pero vía una API
  * pensada para desarrolladores, con atribución requerida).
  *
- * Requiere una API key GRATUITA propia (te la generás en
- * themoviedb.org -> Configuración -> API), que se lee desde
- * local.properties como TMDB_API_KEY=tu_clave. Sin clave configurada, esta
- * función simplemente no encuentra nada — no rompe el resto de la app.
+ * Requiere una API key GRATUITA propia de cada persona (se genera en
+ * themoviedb.org -> Configuración -> API) que se carga desde el menú ⋮ de la
+ * app y se guarda solo en el dispositivo. Sin clave, esta función simplemente
+ * no encuentra nada — no rompe el resto de la app.
  */
 object TmdbApi {
 
@@ -30,20 +31,43 @@ object TmdbApi {
 
     data class Provider(val name: String, val logoUrl: String, val type: String)
 
-    fun hasKey(): Boolean = BuildConfig.TMDB_API_KEY.isNotBlank()
+    fun hasKey(context: Context): Boolean = Prefs.getTmdbKey(context).isNotBlank()
+
+    /** true = clave válida, false = TMDb la rechazó, null = no se pudo consultar (sin conexión). */
+    suspend fun validateKey(key: String): Boolean? = withContext(Dispatchers.IO) {
+        var connection: HttpURLConnection? = null
+        try {
+            connection = (URL("$BASE_URL/authentication?api_key=${URLEncoder.encode(key.trim(), "UTF-8")}")
+                .openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = TIMEOUT_MS
+                readTimeout = TIMEOUT_MS
+            }
+            when (connection.responseCode) {
+                in 200..299 -> true
+                401, 403 -> false
+                else -> null
+            }
+        } catch (e: Exception) {
+            null
+        } finally {
+            connection?.disconnect()
+        }
+    }
 
     /** [isMovie] = true busca en /movie, false busca en /tv (series). */
-    suspend fun findWatchProviders(query: String, isMovie: Boolean): List<Provider>? =
+    suspend fun findWatchProviders(context: Context, query: String, isMovie: Boolean): List<Provider>? =
         withContext(Dispatchers.IO) {
-            if (!hasKey() || query.isBlank()) return@withContext null
+            val key = Prefs.getTmdbKey(context)
+            if (key.isBlank() || query.isBlank()) return@withContext null
             val mediaType = if (isMovie) "movie" else "tv"
-            val id = searchId(query, mediaType) ?: return@withContext null
-            fetchProviders(id, mediaType)
+            val id = searchId(key, query, mediaType) ?: return@withContext null
+            fetchProviders(key, id, mediaType)
         }
 
-    private fun searchId(query: String, mediaType: String): Int? {
+    private fun searchId(key: String, query: String, mediaType: String): Int? {
         val encoded = URLEncoder.encode(query.trim(), "UTF-8")
-        val url = "$BASE_URL/search/$mediaType?api_key=${BuildConfig.TMDB_API_KEY}" +
+        val url = "$BASE_URL/search/$mediaType?api_key=${URLEncoder.encode(key, "UTF-8")}" +
             "&query=$encoded&language=es-AR"
         val body = get(url) ?: return null
         return try {
@@ -54,8 +78,8 @@ object TmdbApi {
         }
     }
 
-    private fun fetchProviders(id: Int, mediaType: String): List<Provider>? {
-        val url = "$BASE_URL/$mediaType/$id/watch/providers?api_key=${BuildConfig.TMDB_API_KEY}"
+    private fun fetchProviders(key: String, id: Int, mediaType: String): List<Provider>? {
+        val url = "$BASE_URL/$mediaType/$id/watch/providers?api_key=${URLEncoder.encode(key, "UTF-8")}"
         val body = get(url) ?: return null
         return try {
             val regionObj = JSONObject(body).optJSONObject("results")?.optJSONObject(REGION)

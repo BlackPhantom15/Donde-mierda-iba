@@ -46,6 +46,10 @@ class NewEpisodeCheckWorker(
             if (hayNovedad) {
                 hayCambios = true
 
+                // El historial se guarda siempre, así la campanita sirve aunque
+                // el usuario haya borrado (o bloqueado) la notificación.
+                NotificationHelper.logToHistory(applicationContext, item, latest)
+
                 if (canNotify) {
                     NotificationHelper.notifyNewEpisode(applicationContext, item, latest)
                 }

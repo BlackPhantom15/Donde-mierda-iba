@@ -38,14 +38,16 @@ interface ContentDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(items: List<ContentEntity>): List<Long>
 
+    // El orden del widget es fijo (no depende de updatedAt) para que la serie
+    // no salte al tope de la lista cada vez que se le suma un capítulo.
     // ---------- Usados por el widget de pantalla de inicio ----------
     // Los widgets de Android (RemoteViewsFactory) corren de forma síncrona en
     // su propio proceso/hilo, por eso estos métodos NO son suspend.
 
-    @Query("SELECT * FROM content_items WHERE type = 'SERIE' AND isPinnedToWidget = 1 ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM content_items WHERE type = 'SERIE' AND isPinnedToWidget = 1 ORDER BY name COLLATE NOCASE ASC, id ASC")
     fun getPinnedSeriesSync(): List<ContentEntity>
 
-    @Query("SELECT * FROM content_items WHERE type = 'SERIE' ORDER BY updatedAt DESC LIMIT :limit")
+    @Query("SELECT * FROM content_items WHERE type = 'SERIE' ORDER BY createdAt DESC, id DESC LIMIT :limit")
     fun getRecentSeriesSync(limit: Int): List<ContentEntity>
 
     @Query("SELECT * FROM content_items WHERE id = :id LIMIT 1")

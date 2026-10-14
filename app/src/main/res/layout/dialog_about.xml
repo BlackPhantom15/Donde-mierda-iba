@@ -64,6 +64,16 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:lineSpacingExtra="2dp"
+        android:text="@string/about_credits"
+        android:textColor="@color/text_muted"
+        android:textSize="10sp" />
+
     <Button
         android:id="@+id/btnCloseAbout"
         style="@style/Widget.DMI.AppleButton.Ghost"

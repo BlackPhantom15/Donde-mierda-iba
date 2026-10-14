@@ -4,16 +4,6 @@ plugins {
     id 'kotlin-kapt'
 }
 
-// Clave de TMDb (para "Dónde ver"), leída de local.properties para no
-// comprometerla nunca en el repositorio. Agregá una línea así en tu
-// local.properties (junto al sdk.dir que ya tenés):
-//   TMDB_API_KEY=tu_clave_gratuita_de_themoviedb.org
-def localProps = new Properties()
-def localPropsFile = rootProject.file("local.properties")
-if (localPropsFile.exists()) {
-    localProps.load(new FileInputStream(localPropsFile))
-}
-
 android {
     namespace 'com.blackphantom.dondemierdaiba'
     compileSdk 34
@@ -28,7 +18,6 @@ android {
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
-        buildConfigField "String", "TMDB_API_KEY", "\"${localProps.getProperty('TMDB_API_KEY', '')}\""
     }
 
     buildTypes {

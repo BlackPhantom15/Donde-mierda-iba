@@ -68,6 +68,15 @@
             android:textSize="13sp"
             android:visibility="gone" />
 
+        <Button
+            android:id="@+id/btnSetupKey"
+            style="@style/Widget.DMI.AppleButton.Ghost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/tmdb_key_setup_button"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/providersContainer"
             android:layout_width="match_parent"

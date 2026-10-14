@@ -53,19 +53,35 @@ class WhereToWatchDialog : BottomSheetDialogFragment() {
         val name = requireArguments().getString(ARG_NAME).orEmpty()
         val isMovie = requireArguments().getBoolean(ARG_IS_MOVIE)
 
-        if (!TmdbApi.hasKey()) {
+        binding.btnSetupKey.setOnClickListener {
+            TmdbKeyDialog.show(requireContext()) { load(name, isMovie) }
+        }
+        load(name, isMovie)
+    }
+
+    private fun load(name: String, isMovie: Boolean) {
+        binding.providersContainer.removeAllViews()
+        binding.providersContainer.visibility = View.GONE
+        binding.txtWhereToWatchAttribution.visibility = View.GONE
+        binding.txtWhereToWatchEmpty.visibility = View.GONE
+
+        if (!TmdbApi.hasKey(requireContext())) {
             binding.progressWhereToWatch.visibility = View.GONE
-            showEmpty(getString(R.string.where_to_watch_error))
+            binding.btnSetupKey.visibility = View.VISIBLE
+            showEmpty(getString(R.string.where_to_watch_no_key))
             return
         }
+        binding.btnSetupKey.visibility = View.GONE
+        binding.progressWhereToWatch.visibility = View.VISIBLE
 
-        lifecycleScope.launch {
-            val providers = TmdbApi.findWatchProviders(name, isMovie)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val providers = TmdbApi.findWatchProviders(requireContext(), name, isMovie)
             if (_binding == null) return@launch
             binding.progressWhereToWatch.visibility = View.GONE
 
             if (providers.isNullOrEmpty()) {
                 showEmpty(getString(R.string.where_to_watch_empty))
+                binding.btnSetupKey.visibility = View.VISIBLE
             } else {
                 binding.providersContainer.visibility = View.VISIBLE
                 binding.txtWhereToWatchAttribution.visibility = View.VISIBLE

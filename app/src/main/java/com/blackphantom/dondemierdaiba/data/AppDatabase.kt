@@ -7,10 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.migration.Migration
 
-@Database(entities = [ContentEntity::class], version = 5, exportSchema = false)
+@Database(entities = [ContentEntity::class, NotificationLogEntity::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun contentDao(): ContentDao
+    abstract fun notificationLogDao(): NotificationLogDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
@@ -47,6 +48,21 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v5 -> v6: historial de notificaciones (campanita).
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS notification_log (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "itemId INTEGER NOT NULL, " +
+                        "title TEXT NOT NULL, " +
+                        "body TEXT NOT NULL, " +
+                        "timestamp INTEGER NOT NULL, " +
+                        "isRead INTEGER NOT NULL)"
+                )
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -54,7 +70,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "donde_mierda_iba.db"
                 )
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     // Red de seguridad solo para saltos de versión muy viejos que no
                     // tengan un camino de migración explícito. Para los casos
                     // normales (v2 -> v3 -> v4) se usan las migraciones reales de

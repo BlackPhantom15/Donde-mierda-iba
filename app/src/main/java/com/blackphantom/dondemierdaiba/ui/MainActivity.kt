@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
@@ -17,6 +18,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -28,11 +31,14 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.blackphantom.dondemierdaiba.R
+import com.blackphantom.dondemierdaiba.data.AppDatabase
 import com.blackphantom.dondemierdaiba.data.ContentEntity
 import com.blackphantom.dondemierdaiba.data.ContentType
 import com.blackphantom.dondemierdaiba.databinding.ActivityMainBinding
 import com.blackphantom.dondemierdaiba.dialogs.AddContentDialog
 import com.blackphantom.dondemierdaiba.dialogs.EditProgressDialog
+import com.blackphantom.dondemierdaiba.dialogs.NotificationHistoryDialog
+import com.blackphantom.dondemierdaiba.dialogs.TmdbKeyDialog
 import com.blackphantom.dondemierdaiba.util.BackupManager
 import com.blackphantom.dondemierdaiba.util.Prefs
 import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
@@ -70,6 +76,7 @@ class MainActivity : AppCompatActivity() {
         setupFab()
         setupCheckUpdates()
         setupBackupMenu()
+        setupNotificationBell()
         updateFabLabel()
         requestNotificationPermissionIfNeeded()
         val showedBatteryDialog = requestBatteryOptimizationExemptionIfNeeded()
@@ -183,6 +190,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ---------- Campanita: historial de notificaciones ----------
+
+    private fun setupNotificationBell() {
+        binding.btnNotifications.setOnClickListener {
+            NotificationHistoryDialog().show(supportFragmentManager, "notif_history")
+        }
+        AppDatabase.getInstance(this).notificationLogDao().observeUnreadCount()
+            .observe(this) { count ->
+                binding.bellBadge.visibility = if (count > 0) View.VISIBLE else View.GONE
+            }
+    }
+
     // ---------- Backup: compartir / importar ----------
 
     private fun setupBackupMenu() {
@@ -216,6 +235,14 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
             showAboutDialog()
         }
+        view.findViewById<View>(R.id.btnTmdbKey).setOnClickListener {
+            dialog.dismiss()
+            TmdbKeyDialog.show(this) {}
+        }
+        view.findViewById<View>(R.id.btnTerms).setOnClickListener {
+            dialog.dismiss()
+            showTermsDialog()
+        }
 
         dialog.show()
     }
@@ -240,6 +267,57 @@ class MainActivity : AppCompatActivity() {
 
         view.findViewById<View>(R.id.btnCloseAbout).setOnClickListener { dialog.dismiss() }
 
+        dialog.show()
+    }
+
+    // ---------- Términos y condiciones ----------
+
+    private fun showTermsDialog() {
+        val dialog = Dialog(this).apply { requestWindowFeature(Window.FEATURE_NO_TITLE) }
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_terms, null)
+        dialog.setContentView(view)
+
+        val container = view.findViewById<LinearLayout>(R.id.termsContainer)
+        val dp = resources.displayMetrics.density
+        val sections = listOf(
+            R.string.terms_s1_title to R.string.terms_s1_body,
+            R.string.terms_s2_title to R.string.terms_s2_body,
+            R.string.terms_s3_title to R.string.terms_s3_body,
+            R.string.terms_s4_title to R.string.terms_s4_body,
+            R.string.terms_s5_title to R.string.terms_s5_body,
+            R.string.terms_s6_title to R.string.terms_s6_body,
+            R.string.terms_s7_title to R.string.terms_s7_body,
+            R.string.terms_s8_title to R.string.terms_s8_body,
+            R.string.terms_s9_title to R.string.terms_s9_body,
+            R.string.terms_s10_title to R.string.terms_s10_body,
+            R.string.terms_s11_title to R.string.terms_s11_body,
+            R.string.terms_s12_title to R.string.terms_s12_body
+        )
+        for ((t, b) in sections) {
+            container.addView(TextView(this).apply {
+                setText(t)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.accent_orange))
+                textSize = 14f
+                setTypeface(typeface, Typeface.BOLD)
+                setPadding(0, (14 * dp).toInt(), 0, (4 * dp).toInt())
+            })
+            container.addView(TextView(this).apply {
+                setText(b)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                textSize = 13f
+                setLineSpacing(3 * dp, 1f)
+            })
+        }
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setDimAmount(0.65f)
+            setLayout(
+                (resources.displayMetrics.widthPixels * 0.92).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        view.findViewById<View>(R.id.btnCloseTerms).setOnClickListener { dialog.dismiss() }
         dialog.show()
     }
 

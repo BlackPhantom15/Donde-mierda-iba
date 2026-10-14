@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Campanita -->
+    <string name="notif_history_title">Avisos recientes</string>
+    <string name="notif_history_subtitle">Lo último que te avisó la app, por si borraste la notificación.</string>
+    <string name="notif_history_clear">Borrar todo</string>
+    <string name="notif_history_empty">Todavía no hay avisos.\nCuando salga un capítulo o temporada nueva de tus series vinculadas, lo vas a ver acá.</string>
+    <string name="notif_history_item_gone">Esa serie ya no está en tu lista.</string>
+
+    <!-- Clave de TMDb -->
+    <string name="tmdb_key_menu_action">Clave de TMDb (Dónde ver)</string>
+    <string name="tmdb_key_setup_button">Cargar mi clave de TMDb</string>
+    <string name="where_to_watch_no_key">Para ver en qué plataformas está disponible, cargá tu clave gratuita de TMDb. Es opcional: el resto de la app funciona igual.</string>
+    <string name="tmdb_key_title">Clave de TMDb</string>
+    <string name="tmdb_key_explain">\"Dónde ver\" usa TMDb, que pide una clave gratuita propia de cada persona. Entrá a themoviedb.org, creá una cuenta, andá a Ajustes → API y copiá la \"Clave de API\" (la corta, v3). Pegala acá. Queda guardada solo en tu celular.</string>
+    <string name="tmdb_key_get">Abrir themoviedb.org/settings/api</string>
+    <string name="tmdb_key_hint">Pegá tu clave de API (v3)</string>
+    <string name="tmdb_key_save">Probar y guardar</string>
+    <string name="tmdb_key_remove">Borrar mi clave</string>
+    <string name="tmdb_key_empty">Pegá primero tu clave.</string>
+    <string name="tmdb_key_testing">Probando la clave…</string>
+    <string name="tmdb_key_invalid">TMDb no aceptó esa clave. Revisá que sea la \"Clave de API\" (v3) y que esté completa.</string>
+    <string name="tmdb_key_network_error">No se pudo conectar con TMDb. Revisá tu conexión e intentá de nuevo.</string>
+    <string name="tmdb_key_saved">Clave guardada</string>
+    <string name="tmdb_key_removed">Clave borrada</string>
+    <string name="tmdb_key_no_browser">No se pudo abrir el navegador</string>
+
+    <!-- Créditos en "Acerca de" -->
+    <string name="about_credits">Datos de series: TVmaze.com (CC BY-SA 4.0). Dónde ver: TMDB y JustWatch.\nEsta app usa la API de TMDB pero no está avalada ni certificada por TMDB.\nTodas las marcas y carátulas pertenecen a sus respectivos dueños.</string>
+
+    <!-- Términos y condiciones -->
+    <string name="terms_menu_action">Términos y condiciones</string>
+    <string name="terms_title">Términos y condiciones</string>
+    <string name="terms_updated">Dónde Mierda Iba · By BlackPhantom Tech · Octubre de 2026</string>
+
+    <string name="terms_s1_title">1. Aceptación</string>
+    <string name="terms_s1_body">Al instalar y usar \"Dónde Mierda Iba\" (la \"App\") aceptás estos términos. La App es un proyecto de BlackPhantom Tech, San Juan, Argentina. Si no estás de acuerdo con algo, no uses la App y desinstalala: no pasa nada.</string>
+
+    <string name="terms_s2_title">2. Qué es y qué no es esta App</string>
+    <string name="terms_s2_body">Es una libreta personal para anotar en qué temporada, capítulo o minuto te quedaste de tus series, películas y videos. NO es una plataforma de streaming: no reproduce, no aloja, no descarga ni distribuye series, películas, videos ni ningún contenido protegido por derechos de autor, y no facilita el acceso a copias piratas. Lo que cargás es solo un registro tuyo (nombre, número, imagen).</string>
+
+    <string name="terms_s3_title">3. Tus datos y tu privacidad</string>
+    <string name="terms_s3_body">No hay cuentas, registro ni servidores propios. Todo lo que cargás (listas, progreso, calificaciones, historial de avisos) se guarda únicamente en tu dispositivo. No vendemos ni compartimos tus datos, no usamos publicidad ni rastreadores. Conforme a la Ley 25.326 de Protección de Datos Personales de la República Argentina, vos sos el único titular y controlás tu información: si desinstalás la App o borrás sus datos, todo se elimina. Para consultas o reclamos de datos personales podés escribirnos al contacto de la sección 12; la autoridad de aplicación es la Agencia de Acceso a la Información Pública.</string>
+
+    <string name="terms_s4_title">4. Servicios de terceros</string>
+    <string name="terms_s4_body">Para funcionar, la App consulta servicios externos: (a) TVmaze (tvmaze.com) para buscar series, imágenes y detectar capítulos o temporadas nuevas; los datos de TVmaze se ofrecen bajo licencia CC BY-SA 4.0. (b) TMDB (themoviedb.org), con datos de disponibilidad de JustWatch, para mostrar en qué plataformas se puede ver un título en Argentina. Esta App usa la API de TMDB pero no está avalada ni certificada por TMDB. Para usar \"Dónde ver\" cada persona carga su propia clave gratuita de TMDB (opcional), que se guarda solo en su dispositivo, y es responsable de cumplir los términos de TMDB al obtenerla y usarla. Al usar estas funciones, tu dispositivo se conecta a esos servicios y se aplican sus propios términos y políticas de privacidad. No controlamos su disponibilidad, exactitud ni actualización: la información puede estar incompleta, desactualizada o ser incorrecta.</string>
+
+    <string name="terms_s5_title">5. Imágenes y contenido que cargás</string>
+    <string name="terms_s5_body">Las carátulas y pósters que se muestran provienen de terceros o de lo que vos elijas (galería o enlace) y pertenecen a sus respectivos titulares. La App no las almacena en ningún servidor ni las redistribuye: solo las muestra en tu dispositivo, para uso personal. Sos responsable de que lo que cargues (imágenes, nombres, enlaces) no infrinja derechos de terceros ni la ley. Las imágenes de plataformas de video que ves en la App son etiquetas con nombre propio de la App, no logos oficiales.</string>
+
+    <string name="terms_s6_title">6. Marcas y propiedad intelectual de terceros</string>
+    <string name="terms_s6_body">Netflix, YouTube, Twitch, Kick, TikTok, Facebook, X, JustWatch, TMDB, TVmaze y cualquier otro nombre, marca, logo o título mencionado pertenecen a sus dueños. Se nombran solo para identificar servicios o contenidos, sin implicar relación, patrocinio ni aval alguno con BlackPhantom Tech.</string>
+
+    <string name="terms_s7_title">7. Propiedad intelectual de la App</string>
+    <string name="terms_s7_body">El nombre \"Dónde Mierda Iba\", el logo, el fantasma de BlackPhantom, el diseño visual y el código propio de la App pertenecen a BlackPhantom Tech. Podés usar la App para tu uso personal; no está permitido copiarla, venderla ni presentarla como propia sin autorización. Los componentes de código abierto que utiliza (como Room, Glide, WorkManager y Material Components) siguen sus respectivas licencias (Apache 2.0).</string>
+
+    <string name="terms_s8_title">8. Notificaciones y avisos</string>
+    <string name="terms_s8_body">Si lo permitís, la App te avisa cuando detecta un capítulo o temporada nueva de las series vinculadas a TVmaze. Los avisos se chequean cada tanto en segundo plano y pueden demorarse o no llegar (ahorro de batería, falta de internet, datos incompletos de TVmaze). No garantizamos la puntualidad ni la exactitud. Los últimos avisos quedan guardados en la campanita, solo en tu dispositivo, y podés borrarlos cuando quieras.</string>
+
+    <string name="terms_s9_title">9. Copias de seguridad y archivos compartidos</string>
+    <string name="terms_s9_body">La función de exportar crea un archivo con tus listas que vos decidís dónde guardar o con quién compartir. Al importar un archivo de otra persona, la App suma su contenido a tu lista; revisá siempre que confiás en quien te lo envió. Guardar tus copias es tu responsabilidad: si perdés el dispositivo sin respaldo, no podemos recuperar tus datos.</string>
+
+    <string name="terms_s10_title">10. Uso permitido</string>
+    <string name="terms_s10_body">Te comprometés a usar la App de forma lícita y personal. Queda prohibido usarla para infringir derechos de autor, para acceder a contenido de forma ilegal, para atacar o sobrecargar los servicios de terceros, o para modificar y redistribuir la App haciéndote pasar por BlackPhantom Tech.</string>
+
+    <string name="terms_s11_title">11. Sin garantías y limitación de responsabilidad</string>
+    <string name="terms_s11_body">La App se ofrece \"tal cual está\", de forma gratuita y sin garantías de funcionamiento ininterrumpido ni libre de errores. En la medida permitida por la ley argentina, BlackPhantom Tech no responde por pérdidas de datos, avisos que no lleguen, información incorrecta de servicios de terceros, ni por daños derivados del uso o la imposibilidad de usar la App. Esto no limita derechos que la ley te reconozca como usuario.</string>
+
+    <string name="terms_s12_title">12. Cambios, contacto y ley aplicable</string>
+    <string name="terms_s12_body">Podemos actualizar estos términos cuando la App cambie; la versión vigente es la que figura en esta pantalla, con su fecha. Si seguís usando la App después de un cambio, se entiende que lo aceptás. Contacto: BlackPhantom Tech, San Juan, Argentina, a través del repositorio o los canales oficiales de BlackPhantom. Estos términos se rigen por las leyes de la República Argentina y, ante cualquier conflicto, serán competentes los tribunales ordinarios de la Provincia de San Juan, sin perjuicio de los derechos que la normativa de defensa del consumidor te otorgue.</string>
+</resources>
