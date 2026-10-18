@@ -10,7 +10,7 @@
         android:layout_width="40dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
-        android:background="#40FFFFFF" />
+        android:background="@drawable/bg_handle" />
 
     <ImageView
         android:id="@+id/imgFullPreview"

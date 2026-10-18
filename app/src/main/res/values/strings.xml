@@ -101,7 +101,7 @@
     <string name="widget_season_complete">Ya llegaste al último capítulo conocido de esta temporada</string>
     <string name="widget_no_more_seasons">Todavía no hay una temporada siguiente conocida</string>
 
-    <string name="tutorial_skip">Saltear</string>
+    <string name="tutorial_skip">Omitir</string>
     <string name="tutorial_next">Siguiente</string>
     <string name="tutorial_done">Entendido, ¡vamos!</string>
     <string name="tutorial_step_count">PASO %1$d DE %2$d</string>
@@ -153,4 +153,7 @@
     <string name="where_to_watch_empty">No encontramos dónde está disponible por streaming ahora mismo</string>
     <string name="where_to_watch_error">No se pudo consultar. Revisá tu conexión o la clave de TMDb</string>
     <string name="where_to_watch_attribution">Datos de streaming provistos por TMDb (JustWatch)</string>
+    <string name="series_completed_title">¡Serie completada!</string>
+    <string name="series_completed_sub">Terminaste todo. Un aplauso 👏</string>
+    <string name="main_title">Dónde\nMierda Iba</string>
 </resources>

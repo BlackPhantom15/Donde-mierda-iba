@@ -108,6 +108,11 @@ class AddContentDialog : BottomSheetDialogFragment() {
         }
 
         binding.rowSerie.visibility = if (type == ContentType.SERIE) View.VISIBLE else View.GONE
+        // Una serie siempre arranca en temporada 1, capítulo 1.
+        if (type == ContentType.SERIE) {
+            if (binding.edtSeason.text.isNullOrBlank()) binding.edtSeason.setText("1")
+            if (binding.edtEpisode.text.isNullOrBlank()) binding.edtEpisode.setText("1")
+        }
         binding.chipGroupPlatform.visibility = if (type == ContentType.VIDEO) View.VISIBLE else View.GONE
         binding.imgPreviewContainer.visibility = if (type == ContentType.VIDEO) View.GONE else View.VISIBLE
 
@@ -208,8 +213,8 @@ class AddContentDialog : BottomSheetDialogFragment() {
         val hours = binding.edtHours.text.toString().trim().toIntOrNull() ?: 0
         val minutesOnly = binding.edtMinute.text.toString().trim().toIntOrNull() ?: 0
         val minute = hours * 60 + minutesOnly
-        var season = binding.edtSeason.text.toString().trim().toIntOrNull() ?: 0
-        var episode = binding.edtEpisode.text.toString().trim().toIntOrNull() ?: 0
+        var season = (binding.edtSeason.text.toString().trim().toIntOrNull() ?: 1).coerceAtLeast(1)
+        var episode = (binding.edtEpisode.text.toString().trim().toIntOrNull() ?: 1).coerceAtLeast(1)
 
         binding.btnSave.isEnabled = false
 

@@ -1,50 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- sombra suave detras del panel -->
-    <item android:top="6dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="30dp" />
-            <solid android:color="#33000000" />
-        </shape>
-    </item>
-
-    <!-- cuerpo "vidrio": relleno oscuro translucido con un leve degrade,
-         simula el efecto glassmorphism sobre el fondo de la app -->
-    <item android:bottom="4dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="28dp" />
-            <gradient
-                android:type="linear"
-                android:angle="135"
-                android:startColor="#DE252329"
-                android:endColor="#DE18161C" />
-        </shape>
-    </item>
-
-    <!-- borde brillante tipo cristal -->
-    <item android:bottom="4dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="28dp" />
-            <stroke android:width="1dp" android:color="#33FFFFFF" />
-        </shape>
-    </item>
-
-    <!-- resplandor naranja sutil arriba, coherente con la paleta del logo -->
-    <item
-        android:top="0dp"
-        android:bottom="4dp"
-        android:left="0dp"
-        android:right="0dp">
-        <shape android:shape="rectangle">
-            <corners android:topLeftRadius="28dp" android:topRightRadius="28dp" android:bottomLeftRadius="28dp" android:bottomRightRadius="28dp" />
-            <gradient
-                android:type="linear"
-                android:angle="90"
-                android:startColor="#1FE8792E"
-                android:endColor="#00E8792E"
-                android:centerY="0.35" />
-        </shape>
-    </item>
-
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:type="linear" android:angle="270" android:startColor="#1B202B" android:endColor="#0F1218" />
+    <corners android:radius="28dp" />
+    <stroke android:width="1dp" android:color="@color/border_soft" />
+</shape>

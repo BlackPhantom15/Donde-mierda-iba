@@ -54,6 +54,14 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Splash screen con logo y animación propios.
 - Tour guiado de bienvenida para usuarios nuevos: 7 pasos con un efecto "spotlight" (pantalla atenuada, agujero recortado sobre el botón que se está explicando) y globos de texto con un poco de humor. Hecho a mano con `Canvas`, sin ninguna librería externa. Se muestra una sola vez, pero se puede volver a ver cuando quieras desde el menú de los 3 puntitos (⋮) → "Ver el tour de nuevo".
 
+**Diseño 2.0**
+- Identidad visual nueva en modo oscuro: base azul tinta, naranja de marca, títulos en serif y tarjetas teñidas por tipo (series naranja, películas azul, videos violeta).
+- Barra inferior flotante con íconos (Series / Películas / Videos), encabezado editorial, buscador con acciones al lado y botón de agregar flotante.
+- Grilla con pósters a pantalla completa y lista con póster vertical.
+- Las series arrancan en temporada 1, capítulo 1.
+- Girar de más en el último capítulo pasa a la temporada siguiente; si era la última, aparece el modal animado de "Serie completada" (2 s o al tocarlo) y la serie queda marcada.
+- El tour de bienvenida sale primero en la primera apertura (antes que los permisos y el aviso de batería) y se puede omitir en cualquier paso.
+
 **Seguimiento fino**
 - En el selector de temporada y capítulo, los capítulos ya vistos y las temporadas completas se ven con el número en verde.
 - Al avanzar de capítulo con el selector, los anteriores se marcan solos como vistos; al pasar de temporada, la anterior queda completa y salta al capítulo 1. El contador de horas y minutos vuelve a 0.

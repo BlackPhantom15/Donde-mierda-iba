@@ -4,10 +4,11 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient">
 
-    <com.blackphantom.dondemierdaiba.ui.FloatingIconsView
-        android:id="@+id/floatingIcons"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <View
+        android:layout_width="460dp"
+        android:layout_height="460dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_splash_glow" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -34,7 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:alpha="0"
-            android:fontFamily="sans-serif-black"
+            android:fontFamily="serif"
+            android:textStyle="bold"
             android:text="@string/splash_tagline"
             android:textColor="@color/text_primary"
             android:textSize="26sp"

@@ -17,14 +17,14 @@ import android.widget.FrameLayout
  */
 class TutorialOverlayView(context: Context) : FrameLayout(context) {
 
-    enum class HoleShape { CIRCLE, ROUNDED_RECT, NONE }
+    enum class HoleShape { CIRCLE, ROUNDED_RECT, PILL, TILE, NONE }
 
     private var holeRect: RectF? = null
     private var holeShape: HoleShape = HoleShape.NONE
     private val cornerRadiusPx = 18f * resources.displayMetrics.density
 
     private val scrimPaint = Paint().apply {
-        color = Color.parseColor("#D41E1C22")
+        color = Color.parseColor("#E00B0E10")
         isAntiAlias = true
     }
 
@@ -37,7 +37,7 @@ class TutorialOverlayView(context: Context) : FrameLayout(context) {
         isAntiAlias = true
         style = Paint.Style.STROKE
         strokeWidth = 2.2f * resources.displayMetrics.density
-        color = Color.parseColor("#E8792E")
+        color = Color.parseColor("#FF7F32")
     }
 
     init {
@@ -75,6 +75,17 @@ class TutorialOverlayView(context: Context) : FrameLayout(context) {
         invalidate()
     }
 
+    /**
+     * Radio de esquina del agujero. PILL = cápsula perfecta (mitad del alto), igual que la
+     * barra de pestañas, el buscador y el botón de agregar; TILE = los cuadrados redondeados
+     * del encabezado (15dp de la vista + el margen del agujero).
+     */
+    private fun cornerFor(rect: RectF): Float = when (holeShape) {
+        HoleShape.PILL -> minOf(rect.width(), rect.height()) / 2f
+        HoleShape.TILE -> 25f * resources.displayMetrics.density
+        else -> cornerRadiusPx
+    }
+
     /** Devuelve el agujero actual en coordenadas de este overlay (para posicionar el globo de texto). */
     fun currentHoleRect(): RectF? = holeRect
 
@@ -88,8 +99,9 @@ class TutorialOverlayView(context: Context) : FrameLayout(context) {
                     val radius = maxOf(rect.width(), rect.height()) / 2f
                     canvas.drawCircle(rect.centerX(), rect.centerY(), radius, clearPaint)
                 }
-                HoleShape.ROUNDED_RECT -> {
-                    canvas.drawRoundRect(rect, cornerRadiusPx, cornerRadiusPx, clearPaint)
+                HoleShape.ROUNDED_RECT, HoleShape.PILL, HoleShape.TILE -> {
+                    val r = cornerFor(rect)
+                    canvas.drawRoundRect(rect, r, r, clearPaint)
                 }
                 HoleShape.NONE -> { /* sin agujero: pantalla de bienvenida */ }
             }
@@ -103,8 +115,9 @@ class TutorialOverlayView(context: Context) : FrameLayout(context) {
                     val radius = maxOf(rect.width(), rect.height()) / 2f
                     canvas.drawCircle(rect.centerX(), rect.centerY(), radius, glowPaint)
                 }
-                HoleShape.ROUNDED_RECT -> {
-                    canvas.drawRoundRect(rect, cornerRadiusPx, cornerRadiusPx, glowPaint)
+                HoleShape.ROUNDED_RECT, HoleShape.PILL, HoleShape.TILE -> {
+                    val r = cornerFor(rect)
+                    canvas.drawRoundRect(rect, r, r, glowPaint)
                 }
                 HoleShape.NONE -> {}
             }

@@ -18,7 +18,8 @@ import com.blackphantom.dondemierdaiba.util.Prefs
 class OnboardingController(
     private val activity: MainActivity,
     private val rootContainer: FrameLayout,
-    private val targets: Targets
+    private val targets: Targets,
+    private val onFinished: (() -> Unit)? = null
 ) {
 
     /** Los elementos reales de la pantalla que vamos a ir señalando. */
@@ -48,15 +49,15 @@ class OnboardingController(
         listOf(
             Step(null, TutorialOverlayView.HoleShape.NONE, R.string.tutorial_welcome_title, R.string.tutorial_welcome_body),
             Step(
-                targets.tabLayout, TutorialOverlayView.HoleShape.ROUNDED_RECT,
+                targets.tabLayout, TutorialOverlayView.HoleShape.PILL,
                 R.string.tutorial_tabs_title, R.string.tutorial_tabs_body,
                 beforeShow = targets.goToFirstTab
             ),
-            Step(targets.searchBar, TutorialOverlayView.HoleShape.ROUNDED_RECT, R.string.tutorial_search_title, R.string.tutorial_search_body),
-            Step(targets.toggleViewButton, TutorialOverlayView.HoleShape.CIRCLE, R.string.tutorial_toggle_title, R.string.tutorial_toggle_body),
-            Step(targets.checkUpdatesButton, TutorialOverlayView.HoleShape.CIRCLE, R.string.tutorial_check_updates_title, R.string.tutorial_check_updates_body),
-            Step(targets.backupMenuButton, TutorialOverlayView.HoleShape.CIRCLE, R.string.tutorial_backup_title, R.string.tutorial_backup_body),
-            Step(targets.addButton, TutorialOverlayView.HoleShape.ROUNDED_RECT, R.string.tutorial_add_title, R.string.tutorial_add_body)
+            Step(targets.searchBar, TutorialOverlayView.HoleShape.PILL, R.string.tutorial_search_title, R.string.tutorial_search_body),
+            Step(targets.toggleViewButton, TutorialOverlayView.HoleShape.TILE, R.string.tutorial_toggle_title, R.string.tutorial_toggle_body),
+            Step(targets.checkUpdatesButton, TutorialOverlayView.HoleShape.TILE, R.string.tutorial_check_updates_title, R.string.tutorial_check_updates_body),
+            Step(targets.backupMenuButton, TutorialOverlayView.HoleShape.TILE, R.string.tutorial_backup_title, R.string.tutorial_backup_body),
+            Step(targets.addButton, TutorialOverlayView.HoleShape.PILL, R.string.tutorial_add_title, R.string.tutorial_add_body)
         )
     }
 
@@ -65,6 +66,8 @@ class OnboardingController(
 
         val ov = TutorialOverlayView(activity)
         overlay = ov
+        // Por encima de TODO (el botón Agregar y la barra tienen elevación propia).
+        ov.elevation = 100f * activity.resources.displayMetrics.density
         rootContainer.addView(ov, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
 
         val bubble = LayoutInflater.from(activity).inflate(R.layout.view_tutorial_bubble, ov, false)
@@ -157,5 +160,6 @@ class OnboardingController(
         overlay?.let { rootContainer.removeView(it) }
         overlay = null
         bubbleView = null
+        onFinished?.invoke()
     }
 }

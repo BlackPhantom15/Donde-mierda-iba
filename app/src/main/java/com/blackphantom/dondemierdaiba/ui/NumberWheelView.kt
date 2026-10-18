@@ -36,6 +36,9 @@ class NumberWheelView @JvmOverloads constructor(
     private var currentValue = 0
     private var onChange: ((oldValue: Int, newValue: Int) -> Unit)? = null
     private var onSettled: ((value: Int) -> Unit)? = null
+    private var onOverscrollForward: (() -> Unit)? = null
+    private var touchStartY = 0f
+    private var overscrollFired = false
 
     var minValue: Int = 0
         set(v) { field = v; onRangeChanged() }
@@ -106,7 +109,12 @@ class NumberWheelView @JvmOverloads constructor(
                 if (e.actionMasked == MotionEvent.ACTION_DOWN) {
                     rv.parent?.requestDisallowInterceptTouchEvent(true)
                 }
+                trackOverscroll(e)
                 return false
+            }
+
+            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
+                trackOverscroll(e)
             }
         })
 
@@ -128,6 +136,32 @@ class NumberWheelView @JvmOverloads constructor(
     /** Se llama una sola vez cuando la rueda deja de girar y queda clavada en un número. */
     fun setOnValueSettledListener(listener: (value: Int) -> Unit) {
         onSettled = listener
+    }
+
+    /**
+     * Se llama cuando la persona, estando ya en el último número, sigue girando
+     * la rueda hacia adelante (como queriendo pasar al siguiente). Una vez por gesto.
+     */
+    fun setOnOverscrollForwardListener(listener: () -> Unit) {
+        onOverscrollForward = listener
+    }
+
+    private fun trackOverscroll(e: MotionEvent) {
+        when (e.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                touchStartY = e.y
+                overscrollFired = false
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val pulledForward = touchStartY - e.y > 28 * density
+                if (!overscrollFired && pulledForward && maxValue > minValue &&
+                    currentValue == maxValue && !recycler.canScrollVertically(1)
+                ) {
+                    overscrollFired = true
+                    onOverscrollForward?.invoke()
+                }
+            }
+        }
     }
 
     /** Vuelve a pintar los números (por ejemplo después de marcar un capítulo como visto). */

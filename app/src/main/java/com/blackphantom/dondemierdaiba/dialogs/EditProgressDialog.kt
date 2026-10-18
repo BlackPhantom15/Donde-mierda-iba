@@ -7,6 +7,13 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.graphics.drawable.ColorDrawable
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.widget.ImageView
+import android.widget.TextView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,6 +74,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
 
     // Última temporada/capítulo "confirmados" (la rueda quedó quieta ahí). Sirven
     // para saber si la persona avanzó o retrocedió y marcar lo anterior como visto.
+    private var completionInProgress = false
     private var anchorSeason: Int = 0
     private var anchorEpisode: Int = 0
 
@@ -236,17 +244,17 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 binding.rowSeasonEpisode.visibility = View.VISIBLE
                 binding.dividerEpisodeMinute.visibility = View.VISIBLE
 
-                val maxSeason = episodeCounts.keys.maxOrNull() ?: 200
-                binding.pickerSeason.minValue = 0
+                val maxSeason = maxOf(1, episodeCounts.keys.maxOrNull() ?: 200)
+                binding.pickerSeason.minValue = 1
                 binding.pickerSeason.maxValue = maxSeason
-                binding.pickerSeason.value = item.season.coerceIn(0, maxSeason)
+                binding.pickerSeason.value = item.season.coerceIn(1, maxSeason)
                 binding.txtSeasonLabel.text = if (episodeCounts.isNotEmpty()) {
                     getString(R.string.field_season_of, maxSeason)
                 } else {
                     getString(R.string.field_season)
                 }
 
-                binding.pickerEpisode.minValue = 0
+                binding.pickerEpisode.minValue = 1
 
                 // Números en verde: capítulos ya vistos de la temporada elegida y
                 // temporadas que quedaron completas (todos sus capítulos vistos).
@@ -279,6 +287,9 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 anchorEpisode = binding.pickerEpisode.value
                 binding.pickerSeason.setOnValueSettledListener { onSeasonSettled(it) }
                 binding.pickerEpisode.setOnValueSettledListener { onEpisodeSettled(it) }
+                // Girar de más estando en el último capítulo: pasa a la temporada
+                // siguiente o, si no hay más, cierra la serie con el modal de festejo.
+                binding.pickerEpisode.setOnOverscrollForwardListener { onEpisodeOverscroll(item) }
             }
 
             setupRatingAndWatchedUi(item)
@@ -414,6 +425,115 @@ class EditProgressDialog : BottomSheetDialogFragment() {
         }
         refreshWheelColors()
         refreshSeriesRatingAndWatchedUi()
+    }
+
+    private fun onEpisodeOverscroll(item: ContentEntity) {
+        if (completionInProgress) return
+        val counts = EpisodeCounts.fromJson(currentItem?.episodeCountsJson ?: item.episodeCountsJson)
+        val season = binding.pickerSeason.value
+        val episode = binding.pickerEpisode.value
+        val total = counts[season] ?: return          // sin datos de TVmaze no sabemos cuál es el último
+        if (episode < total) return
+
+        val nextSeason = counts.keys.filter { it > season }.minOrNull()
+        if (nextSeason != null) {
+            // Termina la temporada: queda completa y salta al capítulo 1 de la siguiente.
+            var json = workingEpisodeWatchedJson
+            for (ep in 1..total) json = EpisodeWatched.setWatched(json, season, ep, true)
+            workingEpisodeWatchedJson = json
+            binding.pickerSeason.value = nextSeason
+            applyEpisodeLimitFor(nextSeason, initialValue = 1)
+            anchorSeason = nextSeason
+            anchorEpisode = 1
+            resetDuration()
+            refreshWheelColors()
+            refreshSeriesRatingAndWatchedUi()
+            Toast.makeText(requireContext(), getString(R.string.season_complete_toast, season), Toast.LENGTH_LONG).show()
+        } else {
+            completeSeries(item, counts)
+        }
+    }
+
+    /** Marca todo como visto, deja las ruedas en el final y muestra el modal de "Serie completada". */
+    private fun completeSeries(item: ContentEntity, counts: Map<Int, Int>) {
+        completionInProgress = true
+        val set = EpisodeWatched.fromJson(workingEpisodeWatchedJson).toMutableSet()
+        counts.forEach { (s, total) -> for (ep in 1..total) set.add("$s-$ep") }
+        workingEpisodeWatchedJson = EpisodeWatched.toJson(set)
+        workingIsCompleted = true
+        resetDuration()
+        refreshWheelColors()
+        refreshSeriesRatingAndWatchedUi()
+
+        val name = binding.txtName.text.toString().trim().ifBlank { item.name }
+        showSeriesCompleteModal(name, pickedImageUri, pickedImageSource) {
+            if (_binding != null && isAdded) {
+                performUpdate(item, AppDatabase.getInstance(requireContext()).contentDao())
+            }
+        }
+    }
+
+    /**
+     * Modal animado a pantalla completa: foto + nombre + "¡Serie completada!".
+     * Se cierra solo a los 2 segundos, o al tocarlo. Al cerrarse llama a [onClosed] una sola vez.
+     */
+    private fun showSeriesCompleteModal(name: String, imageUri: String?, source: ImageSource, onClosed: () -> Unit) {
+        val ctx = requireContext()
+        val dialog = Dialog(ctx, R.style.Theme_DMI_Celebration)
+        val view = LayoutInflater.from(ctx).inflate(R.layout.dialog_series_complete, null, false)
+        dialog.setContentView(view)
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        }
+
+        view.findViewById<TextView>(R.id.completeName).text = name
+        val poster = view.findViewById<ImageView>(R.id.completePoster)
+        if ((source == ImageSource.LOCAL || source == ImageSource.WEB) && !imageUri.isNullOrBlank()) {
+            Glide.with(ctx).load(imageUri).centerCrop()
+                .placeholder(R.drawable.ic_image_placeholder).error(R.drawable.ic_image_placeholder)
+                .into(poster)
+        }
+
+        val card = view.findViewById<View>(R.id.completeCard)
+        val glow = view.findViewById<View>(R.id.glowRing)
+        val badge = view.findViewById<View>(R.id.completeBadge)
+        val posterCard = view.findViewById<View>(R.id.posterCard)
+
+        // Entrada: el fondo aparece, la tarjeta "salta" con rebote, el póster se
+        // endereza, el aro verde late y el tilde aparece al final con un pop.
+        view.alpha = 0f
+        card.scaleX = 0.7f; card.scaleY = 0.7f; card.alpha = 0f
+        posterCard.rotation = -7f
+        badge.scaleX = 0f; badge.scaleY = 0f
+        glow.scaleX = 0.5f; glow.scaleY = 0.5f; glow.alpha = 0f
+
+        view.animate().alpha(1f).setDuration(180).start()
+        card.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(420)
+            .setInterpolator(OvershootInterpolator(1.6f)).start()
+        posterCard.animate().rotation(0f).setDuration(520).setInterpolator(OvershootInterpolator(2f)).start()
+        badge.animate().scaleX(1f).scaleY(1f).setStartDelay(320).setDuration(380)
+            .setInterpolator(OvershootInterpolator(3f)).start()
+        glow.animate().scaleX(1.15f).scaleY(1.15f).alpha(1f).setDuration(900)
+            .setInterpolator(DecelerateInterpolator()).start()
+
+        val handler = Handler(Looper.getMainLooper())
+        var closed = false
+        fun close() {
+            if (closed) return
+            closed = true
+            handler.removeCallbacksAndMessages(null)
+            if (dialog.isShowing) {
+                view.animate().alpha(0f).setDuration(140).withEndAction {
+                    try { dialog.dismiss() } catch (e: Exception) { /* ya cerrado */ }
+                }.start()
+            }
+            onClosed()
+        }
+        view.setOnClickListener { close() }
+        dialog.setOnCancelListener { close() }
+        handler.postDelayed({ close() }, 2000)
+        dialog.show()
     }
 
     /** Capítulo visto = contador de horas y minutos en 0. */
@@ -615,9 +735,9 @@ class EditProgressDialog : BottomSheetDialogFragment() {
      */
     private fun applyEpisodeLimitFor(season: Int, initialValue: Int?) {
         val maxForSeason = episodeCounts[season]
-        val newMax = maxForSeason ?: 999
+        val newMax = maxOf(1, maxForSeason ?: 999)
         val desiredValue = initialValue ?: binding.pickerEpisode.value
-        val clampedValue = desiredValue.coerceIn(0, newMax)
+        val clampedValue = desiredValue.coerceIn(1, maxOf(1, newMax))
 
         binding.pickerEpisode.maxValue = newMax
         binding.pickerEpisode.value = clampedValue
@@ -715,7 +835,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             }
             ImageSource.PRESET -> {
                 val platform = VideoPlatform.fromNameOrNull(pickedImageUri)
-                val colorHex = platform?.colorHex ?: "#E8792E"
+                val colorHex = platform?.colorHex ?: "#FF7F32"
                 binding.imgPreview.setImageDrawable(null)
                 binding.imgPreview.background =
                     PlatformVisuals.glassBackground(requireContext(), colorHex)

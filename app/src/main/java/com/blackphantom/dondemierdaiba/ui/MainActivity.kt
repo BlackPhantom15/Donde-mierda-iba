@@ -54,7 +54,10 @@ class MainActivity : AppCompatActivity() {
     private var isGrid = false
 
     private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* el usuario decide, no forzamos nada */ }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            // El usuario decide, no forzamos nada. Recién después sale el aviso de batería.
+            requestBatteryOptimizationExemptionIfNeeded()
+        }
 
     private val importFileLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -78,17 +81,23 @@ class MainActivity : AppCompatActivity() {
         setupBackupMenu()
         setupNotificationBell()
         updateFabLabel()
-        requestNotificationPermissionIfNeeded()
-        val showedBatteryDialog = requestBatteryOptimizationExemptionIfNeeded()
 
         handleIncomingIntent(intent)
 
-        // Si en esta misma apertura también salió el diálogo de batería, no
-        // arrancamos el tour encima para no pisarnos con dos cosas a la vez.
-        // Se muestra solo en la próxima apertura.
-        if (!Prefs.wasOnboardingShown(this) && !showedBatteryDialog) {
+        // Primera vez: el tour va PRIMERO. Los permisos (notificaciones) y el
+        // aviso de batería se piden recién cuando el tour termina o se omite,
+        // así ninguno lo pisa. Si el tour ya se vio, se piden de entrada.
+        if (!Prefs.wasOnboardingShown(this)) {
             binding.root.post { startOnboarding() }
+        } else {
+            runStartupPrompts()
         }
+    }
+
+    /** Permiso de notificaciones y aviso de batería, siempre de a uno y nunca durante el tour. */
+    private fun runStartupPrompts() {
+        // Si hay que pedir notificaciones, el aviso de batería sale cuando el usuario responde.
+        if (!requestNotificationPermissionIfNeeded()) requestBatteryOptimizationExemptionIfNeeded()
     }
 
     private fun startOnboarding() {
@@ -101,7 +110,7 @@ class MainActivity : AppCompatActivity() {
             addButton = { binding.btnAdd },
             goToFirstTab = { binding.tabLayout.getTabAt(0)?.select() }
         )
-        OnboardingController(this, binding.root, targets).start()
+        OnboardingController(this, binding.root, targets) { runStartupPrompts() }.start()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -137,15 +146,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestNotificationPermissionIfNeeded() {
+    /** Devuelve true si lanzó el pedido de permiso (y por lo tanto hay que esperar su respuesta). */
+    private fun requestNotificationPermissionIfNeeded(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val granted = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
             if (!granted) {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return true
             }
         }
+        return false
     }
 
     /**

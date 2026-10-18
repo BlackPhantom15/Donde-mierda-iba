@@ -2,15 +2,15 @@
 <resources>
     <!-- ===== Paleta Neumorfismo "Dónde Mierda Iba" ===== -->
     <!-- Fondo base (nunca negro puro) -->
-    <color name="bg_top">#1E1C22</color>
-    <color name="bg_bottom">#121115</color>
+    <color name="bg_top">#0E1015</color>
+    <color name="bg_bottom">#090A0E</color>
 
     <!-- Superficies neumórficas: mismo tono que el fondo, variantes para el relieve -->
-    <color name="neu_base">#201E25</color>
-    <color name="neu_base_hi">#252329</color>
-    <color name="neu_base_pressed">#191720</color>
-    <color name="neu_shadow_light">#332F38</color>
-    <color name="neu_shadow_dark">#0B0A0E</color>
+    <color name="neu_base">#151922</color>
+    <color name="neu_base_hi">#1B202B</color>
+    <color name="neu_base_pressed">#0E1117</color>
+    <color name="neu_shadow_light">#272E3B</color>
+    <color name="neu_shadow_dark">#06070A</color>
 
     <!-- Bisel "iluminado": para elementos naranjas, simula que la luz naranja
          se derrama sobre el propio relieve neumórfico -->
@@ -19,23 +19,23 @@
     <color name="neu_glow_ring">#66FFB878</color>
 
     <!-- Compat: nombres antiguos usados en todo el proyecto, mismo valor que los "glass_*" -->
-    <color name="glass_fill">#201E25</color>
-    <color name="glass_stroke">#14FFFFFF</color>
-    <color name="glass_fill_strong">#2A2830</color>
+    <color name="glass_fill">#151922</color>
+    <color name="glass_stroke">#272E3B</color>
+    <color name="glass_fill_strong">#222836</color>
 
     <!-- Acentos (derivados del logo: naranja cálido + ámbar + coral) -->
-    <color name="accent_orange">#E8792E</color>
-    <color name="accent_orange_light">#F3A868</color>
-    <color name="accent_orange_dark">#B85D22</color>
+    <color name="accent_orange">#FF7F32</color>
+    <color name="accent_orange_light">#FFAE72</color>
+    <color name="accent_orange_dark">#D4561A</color>
 
     <!-- Compat: nombres antiguos remapeados a la nueva paleta -->
-    <color name="accent_violet">#E8792E</color>
-    <color name="accent_cyan">#F4B740</color>
+    <color name="accent_violet">#FF7F32</color>
+    <color name="accent_cyan">#FFC247</color>
     <color name="accent_pink">#E2492F</color>
 
-    <color name="text_primary">#F4E9DF</color>
-    <color name="text_secondary">#B7A99C</color>
-    <color name="text_muted">#7D7268</color>
+    <color name="text_primary">#F2F4F8</color>
+    <color name="text_secondary">#A9B1C1</color>
+    <color name="text_muted">#6F788A</color>
 
     <color name="danger">#E2492F</color>
 
@@ -53,4 +53,23 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+
+    <!-- ===== V2.0: tarjetas tintadas con borde fino (una por tipo) ===== -->
+    <color name="surface">#151922</color>
+    <color name="surface_hi">#1B202B</color>
+    <color name="border_soft">#272E3B</color>
+
+    <color name="tint_series">#FF7F32</color>
+    <color name="tint_series_fill">#1C1712</color>
+    <color name="tint_series_stroke">#66FF7F32</color>
+
+    <color name="tint_movie">#4DA3FF</color>
+    <color name="tint_movie_fill">#111A28</color>
+    <color name="tint_movie_stroke">#664DA3FF</color>
+
+    <color name="tint_video">#B08CFF</color>
+    <color name="tint_video_fill">#1A1530</color>
+    <color name="tint_video_stroke">#66B08CFF</color>
+
+    <color name="tab_pill">#2E2218</color>
 </resources>

@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="@string/widget_stepper_season"
-                android:textColor="#F3A868"
+                android:textColor="#FFAE72"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 

@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="oval">
-            <solid android:color="@color/neu_base_hi" />
-        </shape>
-    </item>
-    <!-- anillo sutil, coherente con el resto de botones "ghost" de la app -->
-    <item>
-        <shape android:shape="oval">
-            <stroke android:width="1dp" android:color="#26FFFFFF" />
-        </shape>
-    </item>
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#1B202B" />
+    <stroke android:width="1dp" android:color="#272E3B" />
+</shape>

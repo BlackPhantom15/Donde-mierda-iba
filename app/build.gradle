@@ -14,8 +14,8 @@ android {
         // API 19 (Android 4.4 KitKat), por eso se usa como piso real.
         minSdk 19
         targetSdk 34
-        versionCode 19
-        versionName "1.9"
+        versionCode 20
+        versionName "2.0"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
     }

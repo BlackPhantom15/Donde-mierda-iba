@@ -26,6 +26,7 @@ Cada versión de **Dónde Mierda Iba** está guardada en este repositorio como u
 | [v1.7](../../tree/v1.7) | 29/09/2026 | Calificación con estrellas, marcar como visto con halo verde, botón de confirmar rápido, modal "Dónde ver" (TMDb) y arreglos visuales. |
 | [v1.8](../../tree/v1.8) | 14/10/2026 | Campanita con historial de avisos, términos y condiciones propios, orden fijo en el widget, ícono de notificación con el fantasma y clave de TMDb propia cargada desde la app. |
 | [v1.9](../../tree/v1.9) | 18/10/2026 | Favoritos ❤️ que suben al tope de la lista y del widget. Selector de temporada y capítulo con números en verde (capítulos vistos y temporadas completas). Al avanzar de capítulo, los anteriores se marcan solos como vistos; al pasar de temporada, la anterior queda completa y salta a la siguiente. "Marcar serie vista" tilda todas las temporadas y capítulos de una sola vez. El contador de horas y minutos vuelve a 0 al marcar visto. El backup ahora guarda también calificaciones, vistos y favoritos. |
+| [v2.0](../../tree/v2.0) | 18/10/2026 | Rediseño total en modo oscuro: barra inferior flotante con íconos, encabezado nuevo, grilla con pósters a pantalla completa y tarjetas teñidas por tipo. Las series arrancan en T1·C1. Modal animado de "Serie completada" al girar de más en el último capítulo. El tour sale primero en la primera apertura y se puede omitir. |
 
 ## Cómo probar una versión vieja
 

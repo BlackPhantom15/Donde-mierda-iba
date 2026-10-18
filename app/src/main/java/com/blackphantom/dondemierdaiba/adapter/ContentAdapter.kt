@@ -77,7 +77,7 @@ class ContentAdapter(
                 platformDot?.visibility = android.view.View.VISIBLE
                 platformDot?.background = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
-                    setColor(Color.parseColor(platform?.colorHex ?: "#E8792E"))
+                    setColor(Color.parseColor(platform?.colorHex ?: "#FF7F32"))
                 }
             } else {
                 platformDot?.visibility = android.view.View.GONE
@@ -116,12 +116,20 @@ class ContentAdapter(
                 ContentType.SERIE -> EpisodeWatched.isSeriesComplete(item.episodeWatchedJson, item.episodeCountsJson)
                 else -> item.isCompleted
             }
+            // Cada tipo tiene su tinte (serie naranja, película azul, video violeta):
+            // relleno oscuro apenas teñido y borde fino del mismo color.
+            val (tintFill, tintStroke) = when (item.typeEnum) {
+                ContentType.SERIE -> R.color.tint_series_fill to R.color.tint_series_stroke
+                ContentType.PELICULA -> R.color.tint_movie_fill to R.color.tint_movie_stroke
+                ContentType.VIDEO -> R.color.tint_video_fill to R.color.tint_video_stroke
+            }
             (itemView as? MaterialCardView)?.apply {
+                setCardBackgroundColor(ContextCompat.getColor(itemView.context, tintFill))
                 if (isFullyCompleted) {
                     strokeColor = ContextCompat.getColor(itemView.context, R.color.completed_green)
                     strokeWidth = (2 * itemView.context.resources.displayMetrics.density).toInt()
                 } else {
-                    strokeColor = ContextCompat.getColor(itemView.context, R.color.glass_stroke)
+                    strokeColor = ContextCompat.getColor(itemView.context, tintStroke)
                     strokeWidth = (1 * itemView.context.resources.displayMetrics.density).toInt()
                 }
             }
@@ -131,6 +139,9 @@ class ContentAdapter(
             // recorte quedaba más chico que el marco y se veían las puntas
             // cuadradas de la foto asomando por las esquinas.
             val corner = RoundedCorners((16 * itemView.context.resources.displayMetrics.density).toInt())
+            // En la grilla el póster ocupa toda la tarjeta (la tarjeta ya redondea las esquinas).
+            val transforms: Array<com.bumptech.glide.load.Transformation<android.graphics.Bitmap>> =
+                if (itemView.tag == "grid") arrayOf(CenterCrop()) else arrayOf(CenterCrop(), corner)
             when (item.imageSourceEnum) {
                 ImageSource.LOCAL, ImageSource.WEB -> {
                     imgThumb.background = itemView.context.getDrawable(R.drawable.bg_glass_input)
@@ -138,12 +149,12 @@ class ContentAdapter(
                         .load(item.imageUri)
                         .placeholder(R.drawable.ic_image_placeholder)
                         .error(R.drawable.ic_image_placeholder)
-                        .transform(CenterCrop(), corner)
+                        .transform(*transforms)
                         .into(imgThumb)
                 }
                 ImageSource.PRESET -> {
                     val platform = VideoPlatform.fromNameOrNull(item.imageUri)
-                    val colorHex = platform?.colorHex ?: "#E8792E"
+                    val colorHex = platform?.colorHex ?: "#FF7F32"
                     Glide.with(itemView).clear(imgThumb)
                     imgThumb.setImageDrawable(null)
                     imgThumb.background = PlatformVisuals.glassBackground(itemView.context, colorHex)
