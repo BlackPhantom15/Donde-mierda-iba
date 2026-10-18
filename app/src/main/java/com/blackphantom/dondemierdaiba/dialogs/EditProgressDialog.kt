@@ -29,7 +29,6 @@ import com.blackphantom.dondemierdaiba.data.ImageSource
 import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.databinding.DialogEditProgressBinding
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
-import com.blackphantom.dondemierdaiba.util.DurationFormatter
 import com.blackphantom.dondemierdaiba.util.EpisodeCounts
 import com.blackphantom.dondemierdaiba.util.EpisodeRatings
 import com.blackphantom.dondemierdaiba.util.EpisodeWatched
@@ -38,7 +37,6 @@ import com.blackphantom.dondemierdaiba.util.ImagePreviewHelper
 import com.blackphantom.dondemierdaiba.util.NumberPickerStyler
 import com.blackphantom.dondemierdaiba.util.PlatformVisuals
 import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 
@@ -67,9 +65,10 @@ class EditProgressDialog : BottomSheetDialogFragment() {
     private var workingMovieRating: Int = 0
     private var workingIsCompleted: Boolean = false
 
-    // Búsqueda en curso de la duración del capítulo (TVmaze); performUpdate la
-    // espera para no guardar antes de que llegue.
-    private var runtimeJob: Job? = null
+    // Última temporada/capítulo "confirmados" (la rueda quedó quieta ahí). Sirven
+    // para saber si la persona avanzó o retrocedió y marcar lo anterior como visto.
+    private var anchorSeason: Int = 0
+    private var anchorEpisode: Int = 0
 
     private val starButtons: List<ImageButton> by lazy {
         listOf(binding.star1, binding.star2, binding.star3, binding.star4, binding.star5)
@@ -273,6 +272,13 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 binding.pickerEpisode.setOnValueChangedListener { _, _ ->
                     refreshSeriesRatingAndWatchedUi()
                 }
+
+                // Marcado automático: al quedar la rueda quieta, si se avanzó, lo que
+                // quedó atrás se pinta de verde como visto.
+                anchorSeason = binding.pickerSeason.value
+                anchorEpisode = binding.pickerEpisode.value
+                binding.pickerSeason.setOnValueSettledListener { onSeasonSettled(it) }
+                binding.pickerEpisode.setOnValueSettledListener { onEpisodeSettled(it) }
             }
 
             setupRatingAndWatchedUi(item)
@@ -357,24 +363,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
 
     private fun onMarkWatchedClicked(item: ContentEntity) {
         if (item.typeEnum == ContentType.SERIE) {
-            val season = binding.pickerSeason.value
-            val episode = binding.pickerEpisode.value
-            val wasWatched = EpisodeWatched.isWatched(workingEpisodeWatchedJson, season, episode)
-            workingEpisodeWatchedJson = EpisodeWatched.setWatched(workingEpisodeWatchedJson, season, episode, !wasWatched)
-            refreshWheelColors()
-
-            if (!wasWatched) {
-                // Capítulo completado: la duración pasa a ser la del capítulo entero.
-                fillDurationFromTvMaze(season, episode)
-                when {
-                    EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, item.episodeCountsJson) -> {
-                        Toast.makeText(requireContext(), getString(R.string.series_complete_toast), Toast.LENGTH_LONG).show()
-                    }
-                    EpisodeWatched.isSeasonComplete(workingEpisodeWatchedJson, item.episodeCountsJson, season) -> {
-                        Toast.makeText(requireContext(), getString(R.string.season_complete_toast, season), Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
+            toggleWholeSeriesWatched(item)
         } else {
             workingIsCompleted = !workingIsCompleted
             if (workingIsCompleted) {
@@ -384,56 +373,141 @@ class EditProgressDialog : BottomSheetDialogFragment() {
         updateMarkWatchedButtonUi(item)
     }
 
+    /**
+     * "Marcar visto" en una serie: pone en verde TODAS las temporadas y capítulos
+     * de una sola vez (y deja las ruedas en el último capítulo y el contador en 0).
+     * Si ya estaba toda completa, lo toca de nuevo y los desmarca a todos.
+     */
+    private fun toggleWholeSeriesWatched(item: ContentEntity) {
+        val counts = EpisodeCounts.fromJson(currentItem?.episodeCountsJson ?: item.episodeCountsJson)
+        if (counts.isEmpty()) {
+            // Serie sin datos de TVmaze: no sabemos cuántos capítulos tiene cada
+            // temporada, así que solo se marca/desmarca la serie como terminada.
+            workingIsCompleted = !workingIsCompleted
+            if (workingIsCompleted) {
+                Toast.makeText(requireContext(), getString(R.string.series_complete_toast), Toast.LENGTH_LONG).show()
+                resetDuration()
+            }
+            return
+        }
+
+        val wasComplete = EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, currentItem?.episodeCountsJson)
+        if (wasComplete) {
+            val set = EpisodeWatched.fromJson(workingEpisodeWatchedJson).toMutableSet()
+            counts.forEach { (season, total) -> for (ep in 1..total) set.remove("$season-$ep") }
+            workingEpisodeWatchedJson = EpisodeWatched.toJson(set)
+            workingIsCompleted = false
+            Toast.makeText(requireContext(), getString(R.string.series_unmarked_toast), Toast.LENGTH_SHORT).show()
+        } else {
+            val set = EpisodeWatched.fromJson(workingEpisodeWatchedJson).toMutableSet()
+            counts.forEach { (season, total) -> for (ep in 1..total) set.add("$season-$ep") }
+            workingEpisodeWatchedJson = EpisodeWatched.toJson(set)
+            workingIsCompleted = true
+
+            val lastSeason = counts.keys.max()
+            binding.pickerSeason.value = lastSeason
+            applyEpisodeLimitFor(lastSeason, initialValue = counts[lastSeason] ?: 0)
+            anchorSeason = lastSeason
+            anchorEpisode = binding.pickerEpisode.value
+            resetDuration()
+            Toast.makeText(requireContext(), getString(R.string.series_complete_toast), Toast.LENGTH_LONG).show()
+        }
+        refreshWheelColors()
+        refreshSeriesRatingAndWatchedUi()
+    }
+
+    /** Capítulo visto = contador de horas y minutos en 0. */
+    private fun resetDuration() {
+        binding.pickerHour.value = 0
+        binding.pickerMinute.value = 0
+    }
+
+    /**
+     * La rueda de capítulo quedó quieta. Si se avanzó dentro de la misma temporada,
+     * todos los capítulos anteriores quedan marcados como vistos (verde) y el
+     * contador arranca en 0 para el nuevo. Si se cayó sobre uno ya visto, también 0.
+     */
+    private fun onEpisodeSettled(newEpisode: Int) {
+        val season = binding.pickerSeason.value
+        if (season == anchorSeason && newEpisode > anchorEpisode) {
+            var json = workingEpisodeWatchedJson
+            for (ep in 1 until newEpisode) json = EpisodeWatched.setWatched(json, season, ep, true)
+            workingEpisodeWatchedJson = json
+            resetDuration()
+            refreshWheelColors()
+            checkSeasonDoneToast(season)
+        } else if (newEpisode != anchorEpisode &&
+            EpisodeWatched.isWatched(workingEpisodeWatchedJson, season, newEpisode)
+        ) {
+            resetDuration()
+        }
+        anchorSeason = season
+        anchorEpisode = newEpisode
+        refreshSeriesRatingAndWatchedUi()
+    }
+
+    /**
+     * La rueda de temporada quedó quieta. Si se pasó a una temporada más adelante,
+     * las anteriores quedan completas (todos sus capítulos en verde), se salta al
+     * capítulo 1 de la nueva y el contador vuelve a 0.
+     */
+    private fun onSeasonSettled(newSeason: Int) {
+        if (newSeason > anchorSeason) {
+            val counts = EpisodeCounts.fromJson(currentItem?.episodeCountsJson)
+            var json = workingEpisodeWatchedJson
+            for (s in maxOf(anchorSeason, 1) until newSeason) {
+                val total = counts[s] ?: continue
+                for (ep in 1..total) json = EpisodeWatched.setWatched(json, s, ep, true)
+            }
+            workingEpisodeWatchedJson = json
+            applyEpisodeLimitFor(newSeason, initialValue = 1)
+            resetDuration()
+            refreshWheelColors()
+            val finished = maxOf(anchorSeason, 1)
+            if (anchorSeason >= 1 && EpisodeWatched.isSeasonComplete(json, currentItem?.episodeCountsJson, finished)) {
+                Toast.makeText(requireContext(), getString(R.string.season_complete_toast, finished), Toast.LENGTH_LONG).show()
+            }
+        } else if (newSeason != anchorSeason) {
+            val ep = binding.pickerEpisode.value
+            if (EpisodeWatched.isWatched(workingEpisodeWatchedJson, newSeason, ep)) resetDuration()
+        }
+        anchorSeason = newSeason
+        anchorEpisode = binding.pickerEpisode.value
+        refreshSeriesRatingAndWatchedUi()
+    }
+
+    private fun checkSeasonDoneToast(season: Int) {
+        val counts = currentItem?.episodeCountsJson
+        val total = EpisodeCounts.fromJson(counts)[season] ?: return
+        // Solo avisamos cuando llegó al último capítulo y todos los anteriores están en verde.
+        if (binding.pickerEpisode.value == total &&
+            (1 until total).all { EpisodeWatched.isWatched(workingEpisodeWatchedJson, season, it) }
+        ) {
+            Toast.makeText(requireContext(), getString(R.string.last_episode_hint, season), Toast.LENGTH_LONG).show()
+        }
+    }
+
     /** Repinta los números verdes de las dos ruedas (temporada y capítulo). */
     private fun refreshWheelColors() {
         binding.pickerSeason.refreshColors()
         binding.pickerEpisode.refreshColors()
     }
 
-    /**
-     * Al marcar un capítulo como visto, busca en TVmaze cuánto dura ese capítulo
-     * y deja la duración (horas + minutos) en ese valor, o sea "terminado".
-     * Si la serie no está vinculada a TVmaze o TVmaze no trae el dato, avisa y
-     * deja la duración como estaba.
-     */
-    private fun fillDurationFromTvMaze(season: Int, episode: Int) {
-        val showId = currentItem?.tvMazeId
-        if (showId == null) {
-            Toast.makeText(requireContext(), getString(R.string.duration_not_linked), Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (season <= 0 || episode <= 0) return
-
-        runtimeJob?.cancel()
-        runtimeJob = lifecycleScope.launch {
-            val minutes = TvMazeApi.episodeRuntimeMinutes(showId, season, episode)
-            if (_binding == null) return@launch
-            // Si mientras tanto se movió a otro capítulo o lo desmarcó, no pisamos nada.
-            if (binding.pickerSeason.value != season || binding.pickerEpisode.value != episode) return@launch
-            if (!EpisodeWatched.isWatched(workingEpisodeWatchedJson, season, episode)) return@launch
-
-            if (minutes == null || minutes <= 0) {
-                Toast.makeText(requireContext(), getString(R.string.duration_not_found), Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            val total = minutes.coerceIn(1, 5999)
-            binding.pickerHour.value = total / 60
-            binding.pickerMinute.value = total % 60
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.duration_set_toast, DurationFormatter.format(total)),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     private fun updateMarkWatchedButtonUi(item: ContentEntity) {
         val watched = if (item.typeEnum == ContentType.SERIE) {
-            EpisodeWatched.isWatched(workingEpisodeWatchedJson, binding.pickerSeason.value, binding.pickerEpisode.value)
+            val counts = currentItem?.episodeCountsJson
+            if (EpisodeCounts.fromJson(counts).isEmpty()) workingIsCompleted
+            else EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, counts)
         } else {
             workingIsCompleted
         }
-        binding.btnMarkWatched.text = if (watched) getString(R.string.mark_watched_done) else getString(R.string.mark_watched_action)
+        val isSeries = item.typeEnum == ContentType.SERIE
+        binding.btnMarkWatched.text = when {
+            watched && isSeries -> getString(R.string.mark_series_watched_done)
+            watched -> getString(R.string.mark_watched_done)
+            isSeries -> getString(R.string.mark_series_watched_action)
+            else -> getString(R.string.mark_watched_action)
+        }
     }
 
     // ---------- Dónde ver ----------
@@ -464,10 +538,6 @@ class EditProgressDialog : BottomSheetDialogFragment() {
         binding.btnQuickConfirm.isEnabled = false
 
         lifecycleScope.launch {
-            // Si todavía se está buscando la duración del capítulo, esperamos.
-            runtimeJob?.join()
-            if (_binding == null) return@launch
-
             var tvMazeId = item.tvMazeId
             var remoteSeason = item.remoteSeason
             var remoteEpisode = item.remoteEpisode
@@ -524,7 +594,8 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 episodeRatingsJson = workingEpisodeRatingsJson,
                 episodeWatchedJson = workingEpisodeWatchedJson,
                 isCompleted = if (item.typeEnum == ContentType.SERIE) {
-                    EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, episodeCountsJson)
+                    if (EpisodeCounts.fromJson(episodeCountsJson).isEmpty()) workingIsCompleted
+                    else EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, episodeCountsJson)
                 } else {
                     workingIsCompleted
                 },

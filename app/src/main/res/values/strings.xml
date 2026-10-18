@@ -137,6 +137,10 @@
     <!-- Marcar como visto -->
     <string name="mark_watched_action">Marcar visto</string>
     <string name="mark_watched_done">Ya lo viste ✅</string>
+    <string name="mark_series_watched_action">Marcar serie vista</string>
+    <string name="mark_series_watched_done">Serie vista ✅</string>
+    <string name="series_unmarked_toast">Serie desmarcada: ya no figura como vista</string>
+    <string name="last_episode_hint">Último capítulo de la temporada %1$d. Al pasar a la siguiente queda completa; si era la última, tocá «Marcar serie vista».</string>
     <string name="season_complete_toast">🎉 Temporada %1$d completa</string>
     <string name="series_complete_toast">🏆 ¡Terminaste la serie!</string>
     <string name="movie_complete_toast">🏆 ¡Marcada como vista!</string>

@@ -35,6 +35,7 @@ class NumberWheelView @JvmOverloads constructor(
 
     private var currentValue = 0
     private var onChange: ((oldValue: Int, newValue: Int) -> Unit)? = null
+    private var onSettled: ((value: Int) -> Unit)? = null
 
     var minValue: Int = 0
         set(v) { field = v; onRangeChanged() }
@@ -124,6 +125,11 @@ class NumberWheelView @JvmOverloads constructor(
         onChange = listener
     }
 
+    /** Se llama una sola vez cuando la rueda deja de girar y queda clavada en un número. */
+    fun setOnValueSettledListener(listener: (value: Int) -> Unit) {
+        onSettled = listener
+    }
+
     /** Vuelve a pintar los números (por ejemplo después de marcar un capítulo como visto). */
     fun refreshColors() {
         wheelAdapter.notifyDataSetChanged()
@@ -182,6 +188,7 @@ class NumberWheelView @JvmOverloads constructor(
         val snapped = snapHelper.findSnapView(manager) ?: return
         val position = recycler.getChildAdapterPosition(snapped)
         if (position != RecyclerView.NO_POSITION) applyValue(minValue + position)
+        onSettled?.invoke(currentValue)
     }
 
     private fun applyValue(newValue: Int) {

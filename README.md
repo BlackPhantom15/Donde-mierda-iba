@@ -56,7 +56,8 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 
 **Seguimiento fino**
 - En el selector de temporada y capítulo, los capítulos ya vistos y las temporadas completas se ven con el número en verde.
-- Al marcar un capítulo como visto, la duración se fija sola en lo que dura ese capítulo (dato de TVmaze, con la duración de la serie como respaldo).
+- Al avanzar de capítulo con el selector, los anteriores se marcan solos como vistos; al pasar de temporada, la anterior queda completa y salta al capítulo 1. El contador de horas y minutos vuelve a 0.
+- "Marcar serie vista" pone todas las temporadas y capítulos en verde de una vez (tocarlo de nuevo los desmarca).
 - Favoritos ❤️: cualquier serie, película o video se puede marcar y sube al tope de la lista y del widget, con un corazón en la tarjeta.
 
 **Avisos y legales**
