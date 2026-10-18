@@ -51,6 +51,9 @@ data class ContentEntity(
     // PELICULA y VIDEO: si ya se marcó como visto completo.
     val isCompleted: Boolean = false,
 
+    // Favorito: sube al tope de la lista de la app y del widget.
+    val isFavorite: Boolean = false,
+
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 ) {

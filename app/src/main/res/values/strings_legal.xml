@@ -25,6 +25,15 @@
     <string name="tmdb_key_removed">Clave borrada</string>
     <string name="tmdb_key_no_browser">No se pudo abrir el navegador</string>
 
+    <!-- Duración del capítulo y favoritos -->
+    <string name="duration_set_toast">Duración del capítulo: %1$s</string>
+    <string name="duration_not_found">TVmaze no tiene la duración de este capítulo</string>
+    <string name="duration_not_linked">Para fijar la duración sola, la serie tiene que estar vinculada a TVmaze</string>
+    <string name="favorite_added">Agregado a favoritos</string>
+    <string name="favorite_removed">Sacado de favoritos</string>
+    <string name="favorite_add_cd">Marcar como favorito</string>
+    <string name="favorite_remove_cd">Sacar de favoritos</string>
+
     <!-- Créditos en "Acerca de" -->
     <string name="about_credits">Datos de series: TVmaze.com (CC BY-SA 4.0). Dónde ver: TMDB y JustWatch.\nEsta app usa la API de TMDB pero no está avalada ni certificada por TMDB.\nTodas las marcas y carátulas pertenecen a sus respectivos dueños.</string>
 

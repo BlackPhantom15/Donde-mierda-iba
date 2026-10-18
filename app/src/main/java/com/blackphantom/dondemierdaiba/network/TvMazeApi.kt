@@ -91,6 +91,31 @@ object TvMazeApi {
         }
     }
 
+    /**
+     * Duración en minutos de un capítulo según TVmaze. Si ese capítulo no trae
+     * duración propia, usa la de la serie (runtime, o el promedio si no hay).
+     * Devuelve null si TVmaze no tiene el dato o no hay conexión.
+     */
+    suspend fun episodeRuntimeMinutes(showId: Int, season: Int, number: Int): Int? =
+        withContext(Dispatchers.IO) {
+            val episodeBody = get("$BASE_URL/shows/$showId/episodebynumber?season=$season&number=$number")
+            val fromEpisode = try {
+                episodeBody?.let { JSONObject(it).optInt("runtime", 0) } ?: 0
+            } catch (e: Exception) {
+                0
+            }
+            if (fromEpisode > 0) return@withContext fromEpisode
+
+            val showBody = get("$BASE_URL/shows/$showId") ?: return@withContext null
+            try {
+                val show = JSONObject(showBody)
+                val runtime = show.optInt("runtime", 0)
+                if (runtime > 0) runtime else show.optInt("averageRuntime", 0).takeIf { it > 0 }
+            } catch (e: Exception) {
+                null
+            }
+        }
+
     private fun get(urlString: String): String? {
         var connection: HttpURLConnection? = null
         return try {

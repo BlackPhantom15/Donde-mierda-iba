@@ -89,6 +89,16 @@
                 android:contentDescription="@string/update" />
 
             <ImageButton
+                android:id="@+id/btnFavorite"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_glass_input"
+                android:padding="9dp"
+                android:src="@drawable/ic_heart_outline"
+                android:contentDescription="@string/favorite_add_cd" />
+
+            <ImageButton
                 android:id="@+id/btnPinWidget"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -160,7 +170,7 @@
                         android:textColor="@color/text_muted"
                         android:textSize="11sp" />
 
-                    <NumberPicker
+                    <com.blackphantom.dondemierdaiba.ui.NumberWheelView
                         android:id="@+id/pickerSeason"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -189,7 +199,7 @@
                         android:textColor="@color/text_muted"
                         android:textSize="11sp" />
 
-                    <NumberPicker
+                    <com.blackphantom.dondemierdaiba.ui.NumberWheelView
                         android:id="@+id/pickerEpisode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />

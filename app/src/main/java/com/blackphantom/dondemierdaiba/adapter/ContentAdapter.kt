@@ -53,9 +53,11 @@ class ContentAdapter(
         private val txtRemoteInfo: TextView? = itemView.findViewById(R.id.txtRemoteInfo)
         private val platformDot: android.view.View? = itemView.findViewById(R.id.platformDot)
         private val txtPlatformInitial: TextView? = itemView.findViewById(R.id.txtPlatformInitial)
+        private val imgFavorite: ImageView? = itemView.findViewById(R.id.imgFavorite)
 
         fun bind(item: ContentEntity, onClick: (ContentEntity) -> Unit) {
             txtName.text = item.name
+            imgFavorite?.visibility = if (item.isFavorite) android.view.View.VISIBLE else android.view.View.GONE
 
             txtMeta.text = when (item.typeEnum) {
                 ContentType.SERIE -> itemView.context.getString(

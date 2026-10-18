@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.migration.Migration
 
-@Database(entities = [ContentEntity::class, NotificationLogEntity::class], version = 6, exportSchema = false)
+@Database(entities = [ContentEntity::class, NotificationLogEntity::class], version = 7, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun contentDao(): ContentDao
@@ -63,6 +63,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v6 -> v7: favoritos (isFavorite).
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE content_items ADD COLUMN isFavorite INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -70,7 +77,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "donde_mierda_iba.db"
                 )
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     // Red de seguridad solo para saltos de versión muy viejos que no
                     // tengan un camino de migración explícito. Para los casos
                     // normales (v2 -> v3 -> v4) se usan las migraciones reales de

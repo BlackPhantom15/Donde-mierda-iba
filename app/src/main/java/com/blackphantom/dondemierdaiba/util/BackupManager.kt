@@ -94,6 +94,12 @@ object BackupManager {
         put("remoteSeason", item.remoteSeason)
         put("remoteEpisode", item.remoteEpisode)
         put("isPinnedToWidget", item.isPinnedToWidget)
+        put("episodeCountsJson", item.episodeCountsJson ?: JSONObject.NULL)
+        put("rating", item.rating)
+        put("episodeRatingsJson", item.episodeRatingsJson ?: JSONObject.NULL)
+        put("episodeWatchedJson", item.episodeWatchedJson ?: JSONObject.NULL)
+        put("isCompleted", item.isCompleted)
+        put("isFavorite", item.isFavorite)
     }
 
     private fun jsonToItem(obj: JSONObject): ContentEntity? {
@@ -117,6 +123,12 @@ object BackupManager {
             remoteSeason = obj.optInt("remoteSeason", 0),
             remoteEpisode = obj.optInt("remoteEpisode", 0),
             isPinnedToWidget = obj.optBoolean("isPinnedToWidget", false),
+            episodeCountsJson = obj.optStringOrNull("episodeCountsJson"),
+            rating = obj.optInt("rating", 0),
+            episodeRatingsJson = obj.optStringOrNull("episodeRatingsJson"),
+            episodeWatchedJson = obj.optStringOrNull("episodeWatchedJson"),
+            isCompleted = obj.optBoolean("isCompleted", false),
+            isFavorite = obj.optBoolean("isFavorite", false),
             createdAt = System.currentTimeMillis(),
             updatedAt = System.currentTimeMillis()
         )

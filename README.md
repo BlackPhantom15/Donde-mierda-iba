@@ -54,6 +54,11 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Splash screen con logo y animación propios.
 - Tour guiado de bienvenida para usuarios nuevos: 7 pasos con un efecto "spotlight" (pantalla atenuada, agujero recortado sobre el botón que se está explicando) y globos de texto con un poco de humor. Hecho a mano con `Canvas`, sin ninguna librería externa. Se muestra una sola vez, pero se puede volver a ver cuando quieras desde el menú de los 3 puntitos (⋮) → "Ver el tour de nuevo".
 
+**Seguimiento fino**
+- En el selector de temporada y capítulo, los capítulos ya vistos y las temporadas completas se ven con el número en verde.
+- Al marcar un capítulo como visto, la duración se fija sola en lo que dura ese capítulo (dato de TVmaze, con la duración de la serie como respaldo).
+- Favoritos ❤️: cualquier serie, película o video se puede marcar y sube al tope de la lista y del widget, con un corazón en la tarjeta.
+
 **Avisos y legales**
 - Campanita 🔔 en el encabezado: historial de los últimos avisos de capítulos/temporadas nuevas (se guardan en la base local, hasta 100), para no perderse nada si se borra la notificación del sistema. Punto naranja si hay avisos sin leer; tocar uno abre la serie.
 - Términos y condiciones propios dentro del menú ⋮, y créditos/atribuciones (TVmaze, TMDb, JustWatch) en "Acerca de la app".
@@ -144,15 +149,10 @@ Repositorio personal. Si querés reutilizar código o adaptarlo a tu propio proy
 
 ## Base de datos
 
-La base va en su versión 6 (Room, con la tabla `notification_log` agregada en la v6). Todos los saltos desde la v2 en adelante
+La base va en su versión 7 (Room: tabla `notification_log` en la v6 y columna `isFavorite` en la v7). Todos los saltos desde la v2 en adelante
 tienen migración real (`ALTER TABLE`), así que actualizar la app no borra lo
 que ya tenías cargado.
 
 ---
 
 **Black Phantom Tech** · San Juan, Argentina
-
-
-## Historial de versiones
-
-Todas las versiones de la app estan en este repositorio, una por tag. Mira [VERSIONES.md](VERSIONES.md) para ver que trajo cada una.

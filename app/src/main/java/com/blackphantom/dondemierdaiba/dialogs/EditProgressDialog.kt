@@ -29,6 +29,7 @@ import com.blackphantom.dondemierdaiba.data.ImageSource
 import com.blackphantom.dondemierdaiba.data.VideoPlatform
 import com.blackphantom.dondemierdaiba.databinding.DialogEditProgressBinding
 import com.blackphantom.dondemierdaiba.network.TvMazeApi
+import com.blackphantom.dondemierdaiba.util.DurationFormatter
 import com.blackphantom.dondemierdaiba.util.EpisodeCounts
 import com.blackphantom.dondemierdaiba.util.EpisodeRatings
 import com.blackphantom.dondemierdaiba.util.EpisodeWatched
@@ -37,6 +38,7 @@ import com.blackphantom.dondemierdaiba.util.ImagePreviewHelper
 import com.blackphantom.dondemierdaiba.util.NumberPickerStyler
 import com.blackphantom.dondemierdaiba.util.PlatformVisuals
 import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 
@@ -64,6 +66,10 @@ class EditProgressDialog : BottomSheetDialogFragment() {
     private var workingEpisodeWatchedJson: String? = null
     private var workingMovieRating: Int = 0
     private var workingIsCompleted: Boolean = false
+
+    // Búsqueda en curso de la duración del capítulo (TVmaze); performUpdate la
+    // espera para no guardar antes de que llegue.
+    private var runtimeJob: Job? = null
 
     private val starButtons: List<ImageButton> by lazy {
         listOf(binding.star1, binding.star2, binding.star3, binding.star4, binding.star5)
@@ -187,6 +193,24 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 }
             }
 
+            // Favorito: sube la serie/película/video al tope de la lista (y del
+            // widget). Se guarda al instante, igual que el pin del widget.
+            updateFavoriteIcon(item.isFavorite)
+            binding.btnFavorite.setOnClickListener {
+                val newValue = !(currentItem?.isFavorite ?: false)
+                lifecycleScope.launch {
+                    dao.setFavorite(item.id, newValue)
+                    currentItem = currentItem?.copy(isFavorite = newValue)
+                    updateFavoriteIcon(newValue)
+                    if (item.typeEnum == ContentType.SERIE) SeriesWidgetProvider.requestRefresh(requireContext())
+                    Toast.makeText(
+                        requireContext(),
+                        getString(if (newValue) R.string.favorite_added else R.string.favorite_removed),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
             // Confirmar rápido: hace exactamente lo mismo que "Actualizar",
             // pero sin tener que bajar hasta el final del modal.
             binding.btnQuickConfirm.setOnClickListener { performUpdate(item, dao) }
@@ -217,8 +241,6 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 binding.pickerSeason.minValue = 0
                 binding.pickerSeason.maxValue = maxSeason
                 binding.pickerSeason.value = item.season.coerceIn(0, maxSeason)
-                binding.pickerSeason.wrapSelectorWheel = false
-                NumberPickerStyler.style(binding.pickerSeason, textColor, dividerColor)
                 binding.txtSeasonLabel.text = if (episodeCounts.isNotEmpty()) {
                     getString(R.string.field_season_of, maxSeason)
                 } else {
@@ -226,18 +248,29 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 }
 
                 binding.pickerEpisode.minValue = 0
-                binding.pickerEpisode.wrapSelectorWheel = false
-                NumberPickerStyler.style(binding.pickerEpisode, textColor, dividerColor)
+
+                // Números en verde: capítulos ya vistos de la temporada elegida y
+                // temporadas que quedaron completas (todos sus capítulos vistos).
+                binding.pickerSeason.isGreen = { season ->
+                    season > 0 && EpisodeWatched.isSeasonComplete(
+                        workingEpisodeWatchedJson, currentItem?.episodeCountsJson, season
+                    )
+                }
+                binding.pickerEpisode.isGreen = { episode ->
+                    episode > 0 && EpisodeWatched.isWatched(
+                        workingEpisodeWatchedJson, binding.pickerSeason.value, episode
+                    )
+                }
                 applyEpisodeLimitFor(binding.pickerSeason.value, initialValue = item.episode)
 
                 // Al cambiar la temporada, recalculamos al toque el máximo de
                 // capítulo permitido según lo que esa temporada tiene de verdad,
                 // y refrescamos la calificación/estado de "visto" de ese capítulo.
-                binding.pickerSeason.setOnValueChangedListener { _, _, newSeason ->
+                binding.pickerSeason.setOnValueChangedListener { _, newSeason ->
                     applyEpisodeLimitFor(newSeason, initialValue = null)
                     refreshSeriesRatingAndWatchedUi()
                 }
-                binding.pickerEpisode.setOnValueChangedListener { _, _, _ ->
+                binding.pickerEpisode.setOnValueChangedListener { _, _ ->
                     refreshSeriesRatingAndWatchedUi()
                 }
             }
@@ -328,8 +361,11 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             val episode = binding.pickerEpisode.value
             val wasWatched = EpisodeWatched.isWatched(workingEpisodeWatchedJson, season, episode)
             workingEpisodeWatchedJson = EpisodeWatched.setWatched(workingEpisodeWatchedJson, season, episode, !wasWatched)
+            refreshWheelColors()
 
             if (!wasWatched) {
+                // Capítulo completado: la duración pasa a ser la del capítulo entero.
+                fillDurationFromTvMaze(season, episode)
                 when {
                     EpisodeWatched.isSeriesComplete(workingEpisodeWatchedJson, item.episodeCountsJson) -> {
                         Toast.makeText(requireContext(), getString(R.string.series_complete_toast), Toast.LENGTH_LONG).show()
@@ -346,6 +382,49 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             }
         }
         updateMarkWatchedButtonUi(item)
+    }
+
+    /** Repinta los números verdes de las dos ruedas (temporada y capítulo). */
+    private fun refreshWheelColors() {
+        binding.pickerSeason.refreshColors()
+        binding.pickerEpisode.refreshColors()
+    }
+
+    /**
+     * Al marcar un capítulo como visto, busca en TVmaze cuánto dura ese capítulo
+     * y deja la duración (horas + minutos) en ese valor, o sea "terminado".
+     * Si la serie no está vinculada a TVmaze o TVmaze no trae el dato, avisa y
+     * deja la duración como estaba.
+     */
+    private fun fillDurationFromTvMaze(season: Int, episode: Int) {
+        val showId = currentItem?.tvMazeId
+        if (showId == null) {
+            Toast.makeText(requireContext(), getString(R.string.duration_not_linked), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (season <= 0 || episode <= 0) return
+
+        runtimeJob?.cancel()
+        runtimeJob = lifecycleScope.launch {
+            val minutes = TvMazeApi.episodeRuntimeMinutes(showId, season, episode)
+            if (_binding == null) return@launch
+            // Si mientras tanto se movió a otro capítulo o lo desmarcó, no pisamos nada.
+            if (binding.pickerSeason.value != season || binding.pickerEpisode.value != episode) return@launch
+            if (!EpisodeWatched.isWatched(workingEpisodeWatchedJson, season, episode)) return@launch
+
+            if (minutes == null || minutes <= 0) {
+                Toast.makeText(requireContext(), getString(R.string.duration_not_found), Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            val total = minutes.coerceIn(1, 5999)
+            binding.pickerHour.value = total / 60
+            binding.pickerMinute.value = total % 60
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.duration_set_toast, DurationFormatter.format(total)),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun updateMarkWatchedButtonUi(item: ContentEntity) {
@@ -385,6 +464,10 @@ class EditProgressDialog : BottomSheetDialogFragment() {
         binding.btnQuickConfirm.isEnabled = false
 
         lifecycleScope.launch {
+            // Si todavía se está buscando la duración del capítulo, esperamos.
+            runtimeJob?.join()
+            if (_binding == null) return@launch
+
             var tvMazeId = item.tvMazeId
             var remoteSeason = item.remoteSeason
             var remoteEpisode = item.remoteEpisode
@@ -432,6 +515,7 @@ class EditProgressDialog : BottomSheetDialogFragment() {
                 imageSource = pickedImageSource.name,
                 platform = if (item.typeEnum == ContentType.VIDEO) selectedPlatform?.name else item.platform,
                 isPinnedToWidget = currentItem?.isPinnedToWidget ?: item.isPinnedToWidget,
+                isFavorite = currentItem?.isFavorite ?: item.isFavorite,
                 tvMazeId = tvMazeId,
                 remoteSeason = remoteSeason,
                 remoteEpisode = remoteEpisode,
@@ -524,6 +608,15 @@ class EditProgressDialog : BottomSheetDialogFragment() {
             }
             binding.chipGroupPlatform.addView(chip)
         }
+    }
+
+    private fun updateFavoriteIcon(favorite: Boolean) {
+        binding.btnFavorite.setImageResource(
+            if (favorite) R.drawable.ic_heart_filled else R.drawable.ic_heart_outline
+        )
+        binding.btnFavorite.contentDescription = getString(
+            if (favorite) R.string.favorite_remove_cd else R.string.favorite_add_cd
+        )
     }
 
     private fun updatePinIcon(pinned: Boolean) {

@@ -10,6 +10,7 @@ interface ContentDao {
         SELECT * FROM content_items
         WHERE type = :type AND name LIKE '%' || :query || '%'
         ORDER BY
+            isFavorite DESC,
             CASE WHEN type = 'SERIE' AND tvMazeId IS NOT NULL AND remoteSeason > 0
                       AND (remoteSeason > season OR (remoteSeason = season AND remoteEpisode > episode))
                  THEN 0 ELSE 1 END,
@@ -44,10 +45,10 @@ interface ContentDao {
     // Los widgets de Android (RemoteViewsFactory) corren de forma síncrona en
     // su propio proceso/hilo, por eso estos métodos NO son suspend.
 
-    @Query("SELECT * FROM content_items WHERE type = 'SERIE' AND isPinnedToWidget = 1 ORDER BY name COLLATE NOCASE ASC, id ASC")
+    @Query("SELECT * FROM content_items WHERE type = 'SERIE' AND isPinnedToWidget = 1 ORDER BY isFavorite DESC, name COLLATE NOCASE ASC, id ASC")
     fun getPinnedSeriesSync(): List<ContentEntity>
 
-    @Query("SELECT * FROM content_items WHERE type = 'SERIE' ORDER BY createdAt DESC, id DESC LIMIT :limit")
+    @Query("SELECT * FROM content_items WHERE type = 'SERIE' ORDER BY isFavorite DESC, createdAt DESC, id DESC LIMIT :limit")
     fun getRecentSeriesSync(limit: Int): List<ContentEntity>
 
     @Query("SELECT * FROM content_items WHERE id = :id LIMIT 1")
@@ -61,6 +62,10 @@ interface ContentDao {
 
     @Query("UPDATE content_items SET minute = :minute, updatedAt = :now WHERE id = :id")
     fun updateMinuteSync(id: Long, minute: Int, now: Long)
+
+    // No toca updatedAt: marcar/desmarcar favorito no cambia el orden entre favoritos.
+    @Query("UPDATE content_items SET isFavorite = :favorite WHERE id = :id")
+    suspend fun setFavorite(id: Long, favorite: Boolean)
 
     @Query("UPDATE content_items SET isPinnedToWidget = :pinned, updatedAt = :now WHERE id = :id")
     suspend fun setPinnedToWidget(id: Long, pinned: Boolean, now: Long)
