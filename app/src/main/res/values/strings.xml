@@ -156,4 +156,33 @@
     <string name="series_completed_title">¡Serie completada!</string>
     <string name="series_completed_sub">Terminaste todo. Un aplauso 👏</string>
     <string name="main_title">Dónde\nMierda Iba</string>
+
+    <!-- Actualizaciones de la app (V2.1) -->
+    <string name="update_menu_action">Buscar actualizaciones</string>
+    <string name="update_menu_action_new">Actualizar a %1$s 🔔</string>
+    <string name="update_title">Actualizaciones</string>
+    <string name="update_installed_version">Versión instalada: %1$s</string>
+    <string name="update_checking">Buscando una versión nueva…</string>
+    <string name="update_up_to_date">Ya tenés la última versión (%1$s) 👌</string>
+    <string name="update_check_again">Buscar de nuevo</string>
+    <string name="update_available">Hay una versión nueva: %1$s</string>
+    <string name="update_download">Descargar</string>
+    <string name="update_not_now">Ahora no</string>
+    <string name="update_downloading">Descargando %1$s…</string>
+    <string name="update_ready">La descarga está lista. ¿Querés instalarla ahora?</string>
+    <string name="update_install">Instalar</string>
+    <string name="update_later">Más tarde</string>
+    <string name="update_retry">Reintentar</string>
+    <string name="update_need_permission">Para instalar la actualización, Android te pide habilitar \"Instalar apps desconocidas\" para Dónde Mierda Iba. Se da una sola vez.</string>
+    <string name="update_open_settings">Abrir ajustes</string>
+    <string name="update_back_from_settings">Cuando lo habilites, volvé acá y tocá Instalar.</string>
+    <string name="update_error_network">No pude conectarme con GitHub. Revisá tu internet y probá de nuevo.</string>
+    <string name="update_error_download">La descarga falló. Probá de nuevo.</string>
+    <string name="update_error_verify">El archivo descargado no pasó la verificación, así que no lo instalo. Probá descargarlo de nuevo.</string>
+    <string name="update_error_install">No pude abrir el instalador de Android. Probá de nuevo.</string>
+    <string name="update_auto_check">Avisarme cuando haya una versión nueva</string>
+    <string name="update_channel_name">Actualizaciones de la app</string>
+    <string name="update_channel_desc">Avisos cuando sale una versión nueva de Dónde Mierda Iba</string>
+    <string name="update_notif_title">🚀 Nueva versión disponible: %1$s</string>
+    <string name="update_notif_body">Tocá para ver las novedades y actualizar la app.</string>
 </resources>

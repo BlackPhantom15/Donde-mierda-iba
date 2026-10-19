@@ -62,6 +62,12 @@ No hay backend, no hay usuarios, no hay analíticas. Es una libreta digital.
 - Girar de más en el último capítulo pasa a la temporada siguiente; si era la última, aparece el modal animado de "Serie completada" (2 s o al tocarlo) y la serie queda marcada.
 - El tour de bienvenida sale primero en la primera apertura (antes que los permisos y el aviso de batería) y se puede omitir en cualquier paso.
 
+**Actualizaciones dentro de la app (2.1)**
+- Menú de la app → "Buscar actualizaciones": consulta la última release de este repo en GitHub, muestra las novedades y, paso por paso y siempre preguntando, baja el APK y ofrece instalarlo sin salir de la app.
+- Aviso automático (notificación) cuando sale una versión nueva, una sola vez por versión. Se puede apagar desde el mismo diálogo.
+- Seguridad: solo baja por HTTPS desde GitHub, comprueba que el archivo sea de esta app (y su SHA-256 si la release lo trae) y Android vuelve a comprobar la firma al instalar. La instalación final la confirma siempre la persona en el instalador del sistema.
+- Para publicar una versión: crear una release con tag `vX.Y` y adjuntar el APK firmado (con la misma keystore de siempre). Opcional: escribir `SHA-256: <hash>` en la descripción.
+
 **Seguimiento fino**
 - En el selector de temporada y capítulo, los capítulos ya vistos y las temporadas completas se ven con el número en verde.
 - Al avanzar de capítulo con el selector, los anteriores se marcan solos como vistos; al pasar de temporada, la anterior queda completa y salta al capítulo 1. El contador de horas y minutos vuelve a 0.
@@ -128,6 +134,7 @@ app/src/main/java/com/blackphantom/dondemierdaiba/
 
 ## Roadmap
 
+- [x] Actualizador dentro de la app: aviso de versión nueva, descarga desde GitHub e instalación confirmada por la persona.
 - [ ] Buscador de imágenes por web dentro de la app (desactivado por ahora — la primera implementación con Openverse tenía un límite de 5 búsquedas por hora que lo hacía inutilizable; evaluando alternativas).
 - [x] Vincular automáticamente el póster de TVmaze cuando no se elige una imagen propia al cargar una serie.
 - [x] Ordenar series por progreso pendiente (las atrasadas primero, las que ya están al día después).

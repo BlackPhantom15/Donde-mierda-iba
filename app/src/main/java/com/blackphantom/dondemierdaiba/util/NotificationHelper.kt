@@ -19,6 +19,8 @@ import com.blackphantom.dondemierdaiba.ui.MainActivity
 object NotificationHelper {
 
     private const val CHANNEL_ID = "new_episodes_channel"
+    private const val UPDATES_CHANNEL_ID = "app_updates_channel"
+    private const val UPDATE_NOTIFICATION_ID = 900001
 
     fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -31,6 +33,15 @@ object NotificationHelper {
             }
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
+
+            val updatesChannel = NotificationChannel(
+                UPDATES_CHANNEL_ID,
+                context.getString(R.string.update_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = context.getString(R.string.update_channel_desc)
+            }
+            manager.createNotificationChannel(updatesChannel)
         }
     }
 
@@ -96,5 +107,29 @@ object NotificationHelper {
         // item.id (Long) cabe siempre en un Int para este uso: es solo un ID de
         // notificación local, no se persiste ni se compara fuera de la app.
         NotificationManagerCompat.from(context).notify(item.id.toInt(), notification)
+    }
+
+    /** Aviso de "hay una versión nueva". Al tocarlo abre la app directo en el diálogo de actualización. */
+    fun notifyUpdateAvailable(context: Context, tag: String) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(MainActivity.EXTRA_OPEN_UPDATE, true)
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, UPDATE_NOTIFICATION_ID, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val body = context.getString(R.string.update_notif_body)
+        val notification = NotificationCompat.Builder(context, UPDATES_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_stat_notify)
+            .setColor(context.getColor(R.color.accent_orange))
+            .setContentTitle(context.getString(R.string.update_notif_title, tag))
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+        NotificationManagerCompat.from(context).notify(UPDATE_NOTIFICATION_ID, notification)
     }
 }

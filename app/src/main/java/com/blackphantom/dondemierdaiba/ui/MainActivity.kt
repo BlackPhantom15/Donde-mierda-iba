@@ -39,6 +39,8 @@ import com.blackphantom.dondemierdaiba.dialogs.AddContentDialog
 import com.blackphantom.dondemierdaiba.dialogs.EditProgressDialog
 import com.blackphantom.dondemierdaiba.dialogs.NotificationHistoryDialog
 import com.blackphantom.dondemierdaiba.dialogs.TmdbKeyDialog
+import com.blackphantom.dondemierdaiba.dialogs.UpdateDialog
+import com.blackphantom.dondemierdaiba.update.UpdateManager
 import com.blackphantom.dondemierdaiba.util.BackupManager
 import com.blackphantom.dondemierdaiba.util.Prefs
 import com.blackphantom.dondemierdaiba.widget.SeriesWidgetProvider
@@ -83,6 +85,10 @@ class MainActivity : AppCompatActivity() {
         updateFabLabel()
 
         handleIncomingIntent(intent)
+
+        // Actualizaciones: limpia APK viejos ya instalados y, si hace rato que no se mira, busca versión nueva.
+        lifecycleScope.launch { UpdateManager.cleanupOldApks(this@MainActivity) }
+        EpisodeCheckScheduler.checkUpdateIfStale(this)
 
         // Primera vez: el tour va PRIMERO. Los permisos (notificaciones) y el
         // aviso de batería se piden recién cuando el tour termina o se omite,
@@ -137,6 +143,12 @@ class MainActivity : AppCompatActivity() {
             binding.tabLayout.getTabAt(0)?.select()
             EditProgressDialog.newInstance(editItemId).show(supportFragmentManager, "edit_from_widget")
             intent.removeExtra(EXTRA_OPEN_EDIT_ITEM_ID)
+        }
+
+        if (intent.getBooleanExtra(EXTRA_OPEN_UPDATE, false)) {
+            intent.removeExtra(EXTRA_OPEN_UPDATE)
+            // post: espera a que la pantalla esté lista (y no pisa el tour de bienvenida).
+            binding.root.post { if (Prefs.wasOnboardingShown(this)) UpdateDialog(this).show() }
         }
 
         if (intent.getBooleanExtra(EXTRA_OPEN_ADD_SERIE, false)) {
@@ -246,6 +258,15 @@ class MainActivity : AppCompatActivity() {
         view.findViewById<View>(R.id.btnAboutApp).setOnClickListener {
             dialog.dismiss()
             showAboutDialog()
+        }
+        val btnUpdate = view.findViewById<android.widget.Button>(R.id.btnUpdateApp)
+        val pending = Prefs.getPendingUpdate(this)
+        if (pending.isNotBlank() && UpdateManager.isNewer(pending, UpdateManager.currentVersionName(this))) {
+            btnUpdate.text = getString(R.string.update_menu_action_new, pending)
+        }
+        btnUpdate.setOnClickListener {
+            dialog.dismiss()
+            UpdateDialog(this).show()
         }
         view.findViewById<View>(R.id.btnTmdbKey).setOnClickListener {
             dialog.dismiss()
@@ -462,5 +483,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_OPEN_EDIT_ITEM_ID = "extra_open_edit_item_id"
         const val EXTRA_OPEN_ADD_SERIE = "extra_open_add_serie"
+        const val EXTRA_OPEN_UPDATE = "extra_open_update"
     }
 }

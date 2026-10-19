@@ -9,5 +9,6 @@ class DMIApplication : MultiDexApplication() {
         super.onCreate()
         NotificationHelper.ensureChannel(this)
         EpisodeCheckScheduler.schedulePeriodic(this)
+        EpisodeCheckScheduler.scheduleUpdateCheck(this)
     }
 }

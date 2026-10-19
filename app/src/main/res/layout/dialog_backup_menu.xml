@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:overScrollMode="ifContentScrolls">
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_glass_sheet"
@@ -72,6 +77,17 @@
         android:text="@string/about_menu_action" />
 
     <Button
+        android:id="@+id/btnUpdateApp"
+        style="@style/Widget.DMI.AppleButton.Ghost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:drawableStart="@drawable/ic_down"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical|start"
+        android:text="@string/update_menu_action" />
+
+    <Button
         android:id="@+id/btnTmdbKey"
         style="@style/Widget.DMI.AppleButton.Ghost"
         android:layout_width="match_parent"
@@ -94,3 +110,5 @@
         android:text="@string/terms_menu_action" />
 
 </LinearLayout>
+
+</ScrollView>
